@@ -1,4 +1,5 @@
 import { NOMES_MESES, SIGLAS_DIAS } from "./calendario";
+import { TIPOS } from "./regras";
 import type { Configuracao, Dia, DiaSemana, Escala, Funcionario, RegraDomingo } from "./tipos";
 
 /** Ajustes manuais por `${funcionarioId}|${iso}`: true = folga, false = trabalho. */
@@ -37,7 +38,8 @@ export function estadoValido(dados: unknown): EstadoSalvo | null {
     !inteiro(c.mes, 1, 12) ||
     !listaDe(c.diasAbertos, 7, (x) => typeof x === "boolean") ||
     !listaDe(c.minimoPorDia, 7, (x) => inteiro(x, 0, 500)) ||
-    !inteiro(c.horasPorDia, 1, 24) ||
+    typeof c.horasPorDia !== "number" ||
+    !(c.horasPorDia >= 1 && c.horasPorDia <= 24) ||
     !REGRAS.includes(c.regraDomingo)
   ) {
     return null;
@@ -63,6 +65,7 @@ export function estadoValido(dados: unknown): EstadoSalvo | null {
   }
   return {
     config: {
+      tipo: TIPOS.includes(c.tipo) ? c.tipo : "5x2",
       ano: c.ano,
       mes: c.mes,
       diasAbertos: [...c.diasAbertos],

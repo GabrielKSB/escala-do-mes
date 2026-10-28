@@ -15,10 +15,8 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
       >
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
-            <span aria-hidden className="folga rounded-md px-1.5 text-base leading-snug">
-              5x2
-            </span>
-            Escala
+            <span aria-hidden className="folga inline-block size-3 rounded-sm" />
+            Escala do Mês
           </Link>
           <nav aria-label="Principal" className="flex items-center gap-1">
             <Link
@@ -47,7 +45,7 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
       <footer className="mt-12 border-t border-borda bg-superficie pb-16 lg:pb-0 print:hidden">
         <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 text-sm text-apagado sm:px-6 md:grid-cols-[2fr_1fr]">
           <div>
-            <p className="font-semibold text-texto">Escala 5x2</p>
+            <p className="font-semibold text-texto">Escala do Mês</p>
             <p className="mt-2 max-w-prose">
               Ferramenta gratuita e informativa. Não substitui orientação jurídica nem a convenção coletiva da sua
               categoria. A escala fica salva só no seu navegador.

@@ -4,7 +4,8 @@ import { ChevronDown, Plus, X } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
 import type { Dimensionamento } from "@/lib/escala/calculadora";
 import { SIGLAS_DIAS } from "@/lib/escala/calendario";
-import type { DiaSemana, Funcionario } from "@/lib/escala/tipos";
+import { MODELOS } from "@/lib/escala/regras";
+import type { DiaSemana, Funcionario, TipoEscala } from "@/lib/escala/tipos";
 import { Avatar, Interruptor } from "./ui";
 
 const ORDEM_DIAS: DiaSemana[] = [1, 2, 3, 4, 5, 6, 0];
@@ -21,16 +22,19 @@ export function novoFuncionario(nome: string): Funcionario {
 export function PassoEquipe({
   funcionarios,
   necessario,
+  tipo,
   aoMudar,
 }: {
   funcionarios: Funcionario[];
   necessario: Dimensionamento;
+  tipo: TipoEscala;
   aoMudar: (funcionarios: Funcionario[]) => void;
 }) {
+  const ciclico = MODELOS[tipo].ciclico;
   const [aberto, setAberto] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const fimDaLista = useRef<HTMLLIElement>(null);
-  const faltam = necessario.escala5x2 - funcionarios.length;
+  const faltam = necessario.pessoas - funcionarios.length;
 
   const atualizar = (id: string, parcial: Partial<Funcionario>) =>
     aoMudar(funcionarios.map((f) => (f.id === id ? { ...f, ...parcial } : f)));
@@ -56,9 +60,15 @@ export function PassoEquipe({
   return (
     <div className="flex min-h-full flex-col">
       <div className="p-5 pb-3">
-        <p className={`rounded-lg px-4 py-3 text-sm ${faltam > 0 ? "bg-destaque-suave" : "bg-destaque-suave"}`}>
-          Na 5x2, os mínimos que você definiu pedem <strong>{necessario.escala5x2} pessoas</strong>
-          {necessario.escala6x1 !== necessario.escala5x2 && <> (na 6x1 seriam {necessario.escala6x1})</>}.{" "}
+        <p className={`rounded-lg px-4 py-3 text-sm ${faltam > 0 ? "bg-perigo-suave" : "bg-destaque-suave"}`}>
+          Na {tipo}, os mínimos que você definiu pedem <strong>{necessario.pessoas} pessoas</strong>
+          {necessario.comparacao.pessoas !== necessario.pessoas && (
+            <>
+              {" "}
+              (na {necessario.comparacao.tipo} seriam {necessario.comparacao.pessoas})
+            </>
+          )}
+          .{" "}
           {faltam > 0 ? (
             <button
               type="button"
@@ -90,18 +100,20 @@ export function PassoEquipe({
                   maxLength={60}
                   className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 font-semibold focus:bg-superficie focus:outline-2 focus:outline-destaque"
                 />
-                <button
-                  type="button"
-                  onClick={() => setAberto(expandido ? null : f.id)}
-                  aria-expanded={expandido}
-                  className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-destaque-suave focus-visible:outline-2 focus-visible:outline-destaque ${
-                    temPreferencia ? "text-destaque" : "text-apagado"
-                  }`}
-                >
-                  Folgas
-                  {temPreferencia && <span className="size-1.5 rounded-full bg-destaque" aria-label="com preferência" />}
-                  <ChevronDown className={`size-4 transition-transform ${expandido ? "rotate-180" : ""}`} />
-                </button>
+                {!ciclico && (
+                  <button
+                    type="button"
+                    onClick={() => setAberto(expandido ? null : f.id)}
+                    aria-expanded={expandido}
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-destaque-suave focus-visible:outline-2 focus-visible:outline-destaque ${
+                      temPreferencia ? "text-destaque" : "text-apagado"
+                    }`}
+                  >
+                    Folgas
+                    {temPreferencia && <span className="size-1.5 rounded-full bg-destaque" aria-label="com preferência" />}
+                    <ChevronDown className={`size-4 transition-transform ${expandido ? "rotate-180" : ""}`} />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => aoMudar(funcionarios.filter((x) => x.id !== f.id))}
@@ -112,7 +124,7 @@ export function PassoEquipe({
                   <X className="size-4" />
                 </button>
               </div>
-              {expandido && (
+              {expandido && !ciclico && (
                 <div className="space-y-4 px-3 pt-1 pb-4">
                   <div>
                     <p className="mb-2 text-sm text-apagado">Dias em que prefere folgar</p>

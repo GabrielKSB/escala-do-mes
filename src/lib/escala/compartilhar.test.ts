@@ -5,6 +5,7 @@ import { escalaVazia } from "./gerador";
 
 const estado: EstadoSalvo = {
   config: {
+    tipo: "5x2",
     ano: 2026,
     mes: 11,
     diasAbertos: [false, true, true, true, true, true, false],

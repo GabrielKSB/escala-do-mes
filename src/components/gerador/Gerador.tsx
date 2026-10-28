@@ -22,13 +22,13 @@ import { ListaAlertas } from "./PainelAlertas";
 import { PassoEquipe, novoFuncionario } from "./PassoEquipe";
 import { PassoFuncionamento } from "./PassoFuncionamento";
 
-export type Predefinicao = Pick<Configuracao, "diasAbertos" | "minimoPorDia" | "regraDomingo" | "horasPorDia">;
+export type Predefinicao = Pick<Configuracao, "tipo" | "diasAbertos" | "minimoPorDia" | "regraDomingo" | "horasPorDia">;
 type Aba = "empresa" | "equipe";
 type Vista = "escala" | Aba;
 
 function estadoInicial(predefinicao: Predefinicao): EstadoSalvo {
   const config: Configuracao = { ...proximoMes(), ...predefinicao };
-  const quantidade = Math.max(1, pessoasNecessarias(config).escala5x2);
+  const quantidade = Math.max(1, pessoasNecessarias(config).pessoas);
   return {
     config,
     funcionarios: Array.from({ length: quantidade }, (_, i) => novoFuncionario(`Pessoa ${i + 1}`)),
@@ -224,7 +224,7 @@ function Editor({
                 </div>
               </>
             ) : (
-              <PassoEquipe funcionarios={funcionarios} necessario={necessario} aoMudar={mudarEquipe} />
+              <PassoEquipe funcionarios={funcionarios} necessario={necessario} tipo={config.tipo} aoMudar={mudarEquipe} />
             )}
           </div>
         </aside>

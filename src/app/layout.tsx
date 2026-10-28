@@ -10,11 +10,11 @@ const spaceGrotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "Gerador de escala 5x2 grátis | Escala 5x2",
-    template: "%s | Escala 5x2",
+    default: "Escala do Mês: gerador de escala de trabalho grátis",
+    template: "%s | Escala do Mês",
   },
   description:
-    "Monte a escala 5x2 do mês em minutos: 2 folgas por semana, rodízio de domingos e alertas da jornada de 40 horas (EC 141/2026). Grátis e sem cadastro.",
+    "Monte a escala de trabalho do mês em minutos: 5x2, 6x1, 4x2 ou 12x36, com rodízio de domingos e alertas da jornada de 40 horas (EC 141/2026). Grátis e sem cadastro.",
   openGraph: { type: "website", locale: "pt_BR", siteName: SITE.nome },
 };
 

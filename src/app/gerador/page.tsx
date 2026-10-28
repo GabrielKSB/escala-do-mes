@@ -3,12 +3,15 @@ import { PaginaGerador } from "@/components/PaginaGerador";
 import { PADRAO } from "@/lib/setores";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = { alternates: { canonical: "/gerador/" } };
+export const metadata: Metadata = {
+  title: "Gerador de escala de trabalho grátis",
+  alternates: { canonical: "/gerador/" },
+};
 
 const aplicativo = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "Gerador de escala 5x2",
+  name: "Escala do Mês",
   url: `${SITE.url}/gerador/`,
   applicationCategory: "BusinessApplication",
   operatingSystem: "Any",
@@ -16,12 +19,12 @@ const aplicativo = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "BRL" },
 };
 
-export default function PaginaInicialGerador() {
+export default function PaginaGeradorGeral() {
   return (
     <>
       <PaginaGerador
-        titulo="Gerador de escala 5x2"
-        introducao="A escala do mês já vem pronta, com 2 folgas por semana para cada pessoa. Ajuste e mande para a equipe."
+        titulo="Gerador de escala"
+        introducao="A escala do mês já vem pronta. Escolha o tipo, ajuste e mande para a equipe."
         predefinicao={PADRAO}
         chave="escala5x2:geral"
       />

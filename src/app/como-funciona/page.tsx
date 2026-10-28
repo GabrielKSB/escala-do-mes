@@ -5,9 +5,9 @@ import { Moldura } from "@/components/Moldura";
 import { LEIS } from "@/lib/escala/leis";
 
 export const metadata: Metadata = {
-  title: "Como funciona a escala 5x2 e perguntas frequentes",
+  title: "Como funciona o gerador de escala e perguntas frequentes",
   description:
-    "Como montar a escala 5x2 em 3 passos, quantos funcionários são necessários, regras de domingo e o que mudou com a jornada de 40 horas (EC 141/2026).",
+    "Como montar a escala de trabalho em 3 passos, os tipos 5x2, 6x1, 4x2 e 12x36, quantos funcionários são necessários, regras de domingo e o que mudou com a jornada de 40 horas (EC 141/2026).",
   alternates: { canonical: "/como-funciona/" },
 };
 
@@ -18,7 +18,7 @@ const PERGUNTAS = [
       "A Emenda Constitucional 141/2026 mudou o art. 7º, XIII, da Constituição: a jornada passou a ter limite de 8 horas por dia e 40 horas por semana. Com turnos de 8 horas, isso dá 5 dias de trabalho por semana. Confira a data de vigência, as regras de transição e a convenção coletiva da sua categoria antes de mudar a escala.",
   },
   {
-    pergunta: "Quantos funcionários preciso para a escala 5x2?",
+    pergunta: "Quantos funcionários preciso para a escala?",
     resposta:
       "Some o mínimo de pessoas de cada dia aberto e divida por 5, que são os dias que cada pessoa trabalha. Depois confira se sobra gente para revezar o domingo. O gerador faz essa conta na aba Equipe e mostra também quantas pessoas seriam na 6x1.",
   },
@@ -46,7 +46,7 @@ const PERGUNTAS = [
 
 const SECOES = [
   { id: "passos", titulo: "Montar em 3 passos" },
-  { id: "escala-5x2", titulo: "O que é a escala 5x2" },
+  { id: "tipos", titulo: "Tipos de escala" },
   { id: "regras", titulo: "Regras conferidas" },
   { id: "perguntas", titulo: "Perguntas frequentes" },
 ];
@@ -111,8 +111,25 @@ export default function ComoFunciona() {
             </Link>
           </section>
 
+          <section id="tipos" className="scroll-mt-8">
+            <h2 className="text-2xl font-semibold">Tipos de escala</h2>
+            <dl className="mt-5 divide-y divide-borda border-y border-borda">
+              {[
+                ["5x2", "5 dias de trabalho e 2 folgas por semana. Com turnos de 8 horas, fecha as 40 horas semanais."],
+                ["6x1", "6 dias de trabalho e 1 folga por semana. Para ficar em 40 horas, o turno precisa ser de 6h40. Cada pessoa folga sempre no mesmo dia da semana, porque a folga não pode passar de 6 dias de trabalho seguidos."],
+                ["4x2", "Ciclo de 4 dias de trabalho e 2 de folga, que gira pelos dias da semana. Comum em indústria e operação contínua."],
+                ["12x36", "Plantão de 12 horas seguido de 36 horas de descanso, previsto no art. 59-A da CLT mediante acordo individual escrito, convenção ou acordo coletivo."],
+              ].map(([tipo, texto]) => (
+                <div key={tipo} className="py-4">
+                  <dt className="font-display text-lg font-semibold text-destaque">{tipo}</dt>
+                  <dd className="mt-1">{texto}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
           <section id="escala-5x2" className="scroll-mt-8">
-            <h2 className="text-2xl font-semibold">O que é a escala 5x2</h2>
+            <h2 className="text-2xl font-semibold">Mais sobre a escala 5x2</h2>
             <p className="mt-4">
               Na escala 5x2 cada pessoa trabalha 5 dias e folga 2 por semana. Com turnos de 8 horas, isso fecha as 40
               horas semanais previstas no art. 7º, XIII, da Constituição, na redação dada pela Emenda Constitucional

@@ -4,6 +4,7 @@ import { gerarEscala } from "@/lib/escala/gerador";
 import type { Configuracao, Funcionario } from "@/lib/escala/tipos";
 
 const CONFIG: Configuracao = {
+  tipo: "5x2",
   ano: 2026,
   mes: 12,
   diasAbertos: [true, true, true, true, true, true, true],

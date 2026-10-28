@@ -7,15 +7,15 @@ import { PreviaEscala } from "@/components/PreviaEscala";
 import { SETORES } from "@/lib/setores";
 
 export const metadata: Metadata = {
-  title: { absolute: "Gerador de escala 5x2 grátis: a escala do mês pronta em um minuto" },
+  title: { absolute: "Escala do Mês: a escala de trabalho pronta em um minuto" },
   alternates: { canonical: "/" },
 };
 
 const RECURSOS = [
   {
     icone: CalendarCheck2,
-    titulo: "2 folgas por semana para todos",
-    texto: "Cada pessoa trabalha 5 dias e folga 2, e o gerador tenta deixar as duas folgas juntas.",
+    titulo: "5x2, 6x1, 4x2 ou 12x36",
+    texto: "Escolha a escala que a empresa usa. As folgas saem certas para cada tipo, com as duas folgas juntas na 5x2.",
   },
   {
     icone: Repeat,
@@ -30,7 +30,7 @@ const RECURSOS = [
   {
     icone: Calculator,
     titulo: "Quantas pessoas você precisa",
-    texto: "Diga o mínimo de cada dia e saiba o tamanho da equipe na 5x2, comparado com a 6x1.",
+    texto: "Diga o mínimo de cada dia e saiba o tamanho da equipe na escala escolhida, comparado com outra.",
   },
   {
     icone: MousePointerClick,
@@ -82,8 +82,8 @@ export default function Inicio() {
               A escala do mês pronta em um minuto
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-apagado">
-              Diga os dias em que a loja abre e quem está na equipe. O gerador distribui 2 folgas por semana para cada
-              pessoa, reveza os domingos e avisa quando algo passa do limite da lei.
+              Escolha a escala, diga os dias em que a empresa abre e quem está na equipe. O gerador distribui as folgas,
+              reveza os domingos e avisa quando algo passa do limite da lei.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link href="/gerador/" className={CTA}>

@@ -10,7 +10,10 @@ export interface Funcionario {
 
 export type RegraDomingo = "comercio" | "quinzenal" | "nenhuma";
 
+export type TipoEscala = "5x2" | "6x1" | "4x2" | "12x36";
+
 export interface Configuracao {
+  tipo: TipoEscala;
   ano: number;
   mes: number;
   diasAbertos: boolean[];

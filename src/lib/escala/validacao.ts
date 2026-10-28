@@ -1,6 +1,6 @@
 import { SIGLAS_DIAS, semanasDe } from "./calendario";
 import { LEIS } from "./leis";
-import { HORAS_DIA, HORAS_SEMANA, MAX_DIAS_SEGUIDOS, limiteDomingos } from "./regras";
+import { HORAS_DIA, HORAS_SEMANA, MAX_DIAS_SEGUIDOS, MODELOS, formatarHoras, limiteDomingos } from "./regras";
 import type { Alerta, Configuracao, Dia, Escala, Funcionario } from "./tipos";
 
 export function dataCurta(dia: Dia): string {
@@ -15,13 +15,16 @@ export function validar(
 ): Alerta[] {
   const alertas: Alerta[] = [];
   const folgasDe = (f: Funcionario) => escala[f.id] ?? dias.map(() => false);
+  const modelo = MODELOS[config.tipo];
+  const plantao = config.tipo === "12x36";
+  const seguidosPermitidos = modelo.ciclico ? modelo.trabalho : MAX_DIAS_SEGUIDOS;
 
-  if (config.horasPorDia > HORAS_DIA) {
+  if (!plantao && config.horasPorDia > HORAS_DIA + 1e-6) {
     alertas.push({
       id: "jornada-diaria",
       tipo: "jornada",
       gravidade: "erro",
-      mensagem: `Turno de ${config.horasPorDia}h passa do limite de ${HORAS_DIA} horas por dia.`,
+      mensagem: `Turno de ${formatarHoras(config.horasPorDia)} passa do limite de ${HORAS_DIA} horas por dia.`,
       dias: [],
       lei: LEIS.jornada,
     });
@@ -50,13 +53,13 @@ export function validar(
     semanas.forEach((semana, s) => {
       const trabalhados = semana.filter((i) => !folgas[i]).length;
       const horas = trabalhados * config.horasPorDia;
-      if (horas > HORAS_SEMANA) {
+      if (!plantao && horas > HORAS_SEMANA + 1e-6) {
         alertas.push({
           id: `jornada-${f.id}-${s}`,
           tipo: "jornada",
           gravidade: "erro",
           funcionarioId: f.id,
-          mensagem: `${f.nome} trabalha ${trabalhados} dias na semana de ${dataCurta(dias[semana[0]])} (${horas}h, limite de ${HORAS_SEMANA}h).`,
+          mensagem: `${f.nome} trabalha ${trabalhados} dias na semana de ${dataCurta(dias[semana[0]])} (${formatarHoras(horas)}, limite de ${HORAS_SEMANA}h).`,
           dias: semana,
           lei: LEIS.jornada,
         });
@@ -66,15 +69,19 @@ export function validar(
     let inicio = -1;
     const fecharSequencia = (fim: number) => {
       const tamanho = fim - inicio + 1;
-      if (inicio >= 0 && tamanho > MAX_DIAS_SEGUIDOS) {
+      if (inicio >= 0 && tamanho > seguidosPermitidos) {
+        const periodo = `${dataCurta(dias[inicio])} a ${dataCurta(dias[fim])}`;
+        const foraDoCiclo = tamanho <= MAX_DIAS_SEGUIDOS;
         alertas.push({
           id: `seguidos-${f.id}-${inicio}`,
           tipo: "descanso",
           gravidade: "erro",
           funcionarioId: f.id,
-          mensagem: `${f.nome} trabalha ${tamanho} dias seguidos (${dataCurta(dias[inicio])} a ${dataCurta(dias[fim])}) sem folga.`,
+          mensagem: foraDoCiclo
+            ? `${f.nome} trabalha ${tamanho} dias seguidos (${periodo}), mais que os ${modelo.trabalho} da escala ${modelo.titulo}.`
+            : `${f.nome} trabalha ${tamanho} dias seguidos (${periodo}) sem folga.`,
           dias: Array.from({ length: tamanho }, (_, k) => inicio + k),
-          lei: LEIS.descansoSemanal,
+          lei: !foraDoCiclo ? LEIS.descansoSemanal : plantao ? LEIS.dozePorTrintaESeis : undefined,
         });
       }
       inicio = -1;

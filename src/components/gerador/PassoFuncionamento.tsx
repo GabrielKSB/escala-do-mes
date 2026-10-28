@@ -1,4 +1,5 @@
 import { NOMES_DIAS } from "@/lib/escala/calendario";
+import { MODELOS, TIPOS, formatarHoras } from "@/lib/escala/regras";
 import type { Configuracao, RegraDomingo } from "@/lib/escala/tipos";
 import { Contador, Interruptor } from "./ui";
 
@@ -23,8 +24,42 @@ export function PassoFuncionamento({
     aoMudar({ ...config, [campo]: lista });
   };
 
+  const opcoesHoras = [...new Set([4, 5, 6, 20 / 3, 7, 22 / 3, 8, 9, 10, 12, config.horasPorDia])].sort((a, b) => a - b);
+
   return (
     <div className="space-y-7 p-5">
+      <fieldset>
+        <legend className="font-semibold">Tipo de escala</legend>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {TIPOS.map((tipo) => {
+            const ativo = config.tipo === tipo;
+            return (
+              <label
+                key={tipo}
+                className={`flex cursor-pointer flex-col rounded-lg border px-3 py-2.5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-destaque ${
+                  ativo ? "border-destaque bg-destaque-suave" : "border-borda bg-superficie hover:border-borda-forte"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="tipoEscala"
+                  className="sr-only"
+                  checked={ativo}
+                  onChange={() => aoMudar({ ...config, tipo, horasPorDia: MODELOS[tipo].horasPadrao })}
+                />
+                <span className={`font-display text-lg font-semibold ${ativo ? "text-destaque" : ""}`}>{tipo}</span>
+                <span className="text-sm text-apagado">{MODELOS[tipo].descricao}</span>
+              </label>
+            );
+          })}
+        </div>
+        {config.tipo === "12x36" && (
+          <p className="mt-3 text-sm text-apagado">
+            A 12x36 precisa de acordo individual escrito ou convenção coletiva (CLT, art. 59-A).
+          </p>
+        )}
+      </fieldset>
+
       <section>
         <h3 className="font-semibold">Dias e equipe mínima</h3>
         <p className="mt-0.5 text-sm text-apagado">Desligue os dias em que fecha. Os números são o mínimo de pessoas trabalhando.</p>
@@ -66,9 +101,9 @@ export function PassoFuncionamento({
           onChange={(e) => aoMudar({ ...config, horasPorDia: Number(e.target.value) })}
           className="rounded-lg border border-borda bg-superficie px-3 py-2 focus-visible:outline-2 focus-visible:outline-destaque"
         >
-          {[4, 5, 6, 7, 8, 9, 10].map((h) => (
+          {opcoesHoras.map((h) => (
             <option key={h} value={h}>
-              {h} horas
+              {formatarHoras(h)}
             </option>
           ))}
         </select>

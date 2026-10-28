@@ -1,6 +1,6 @@
-import { semanasDe } from "./calendario";
-import { FOLGAS_POR_SEMANA, MAX_DIAS_SEGUIDOS, limiteDomingos } from "./regras";
-import type { Configuracao, Dia, Escala, Funcionario } from "./tipos";
+import { diaAbsoluto, semanasDe } from "./calendario";
+import { MAX_DIAS_SEGUIDOS, MODELOS, limiteDomingos } from "./regras";
+import type { Configuracao, Dia, DiaSemana, Escala, Funcionario } from "./tipos";
 import { validar } from "./validacao";
 
 export function diasTrabalhadosAntes(folgas: boolean[], indice: number): number {
@@ -15,7 +15,47 @@ export function escalaVazia(config: Configuracao, funcionarios: Funcionario[], d
   );
 }
 
+/** Cada pessoa recebe uma fase do ciclo, espalhada pela equipe e contada a partir de uma data fixa. */
+function gerarCiclica(config: Configuracao, funcionarios: Funcionario[], dias: Dia[]): Escala {
+  const { trabalho, folga } = MODELOS[config.tipo];
+  const ciclo = trabalho + folga;
+  return Object.fromEntries(
+    funcionarios.map((f, k) => {
+      const fase = Math.floor((k * ciclo) / funcionarios.length);
+      return [f.id, dias.map((d) => !config.diasAbertos[d.semana] || (diaAbsoluto(d) + fase) % ciclo >= trabalho)];
+    }),
+  );
+}
+
+/**
+ * Com 1 folga por semana e no máximo 6 dias seguidos, a folga só pode cair no mesmo dia ou antes
+ * do da semana anterior, então cada pessoa fica com um dia fixo.
+ */
+function gerarFolgaFixa(config: Configuracao, funcionarios: Funcionario[], dias: Dia[]): Escala {
+  const escala = escalaVazia(config, funcionarios, dias);
+  const abertos = [0, 1, 2, 3, 4, 5, 6].filter((d) => config.diasAbertos[d]);
+  if (abertos.length < 7) return escala;
+
+  const folgando = new Map(abertos.map((d) => [d, 0]));
+  for (const f of funcionarios) {
+    const pontuar = (d: number) => {
+      const sobra = funcionarios.length - folgando.get(d)! - 1 - config.minimoPorDia[d];
+      return (sobra >= 0 ? sobra * 10 : -1000 + sobra * 100) + (f.folgasPreferidas.includes(d as DiaSemana) ? 30 : 0);
+    };
+    const dia = abertos.reduce((melhor, d) => (pontuar(d) > pontuar(melhor) ? d : melhor));
+    folgando.set(dia, folgando.get(dia)! + 1);
+    dias.forEach((d, i) => {
+      if (d.semana === dia) escala[f.id][i] = true;
+    });
+  }
+  return escala;
+}
+
 export function gerarEscala(config: Configuracao, funcionarios: Funcionario[], dias: Dia[]): Escala {
+  const modelo = MODELOS[config.tipo];
+  if (modelo.ciclico) return gerarCiclica(config, funcionarios, dias);
+  if (modelo.folga === 1) return gerarFolgaFixa(config, funcionarios, dias);
+
   const escala = escalaVazia(config, funcionarios, dias);
   const semanasSemDomingo = new Map(funcionarios.map((f) => [f.id, 0]));
   const total = funcionarios.length;
@@ -23,7 +63,7 @@ export function gerarEscala(config: Configuracao, funcionarios: Funcionario[], d
 
   semanasDe(dias.map((_, i) => i)).forEach((semana, s) => {
     const abertos = semana.filter((i) => config.diasAbertos[dias[i].semana]);
-    const folgasNecessarias = Math.max(0, FOLGAS_POR_SEMANA - (semana.length - abertos.length));
+    const folgasNecessarias = Math.max(0, modelo.folga - (semana.length - abertos.length));
     const trabalhando = new Map(abertos.map((i) => [i, total]));
     const darFolga = (f: Funcionario, i: number) => {
       escala[f.id][i] = true;

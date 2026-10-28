@@ -14,6 +14,8 @@ export function rotuloMes(ano: number, mes: number): string {
 
 const UM_DIA = 86_400_000;
 
+export const diaAbsoluto = (dia: Dia) => Math.round(Date.UTC(dia.ano, dia.mes - 1, dia.dia) / UM_DIA);
+
 function paraDia(ms: number, mes: number): Dia {
   const d = new Date(ms);
   const m = d.getUTCMonth() + 1;

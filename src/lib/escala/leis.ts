@@ -21,6 +21,11 @@ export const LEIS = {
     dispositivo: "art. 67: descanso semanal de 24 horas consecutivas, preferencialmente aos domingos",
     url: CLT,
   },
+  dozePorTrintaESeis: {
+    norma: "CLT",
+    dispositivo: "art. 59-A: 12 horas seguidas de trabalho por 36 horas ininterruptas de descanso, por acordo ou convenção",
+    url: CLT,
+  },
   domingoComercio: {
     norma: "Lei 10.101/2000",
     dispositivo:

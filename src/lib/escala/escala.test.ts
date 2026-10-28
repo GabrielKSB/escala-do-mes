@@ -6,6 +6,7 @@ import type { Configuracao, DiaSemana, Escala, Funcionario } from "./tipos";
 import { validar } from "./validacao";
 
 const configBase = (parcial: Partial<Configuracao> = {}): Configuracao => ({
+  tipo: "5x2",
   ano: 2026,
   mes: 11,
   diasAbertos: [true, true, true, true, true, true, true],
@@ -63,7 +64,7 @@ describe("gerarEscala", () => {
     for (const mes of [1, 2, 6, 11]) {
       const config = configBase({ mes, minimoPorDia: [2, 3, 3, 3, 3, 4, 4] });
       const dias = intervaloDoMes(config.ano, config.mes);
-      const n = pessoasNecessarias(config).escala5x2;
+      const n = pessoasNecessarias(config).pessoas;
       const funcionarios = equipe(n);
       expect(validar(config, funcionarios, dias, gerarEscala(config, funcionarios, dias))).toEqual([]);
     }
@@ -82,7 +83,7 @@ describe("gerarEscala", () => {
         regraDomingo: (["comercio", "quinzenal", "nenhuma"] as const)[Math.floor(aleatorio() * 3)],
       });
       const quinzenais = Math.floor(aleatorio() * 3);
-      const n = pessoasNecessarias(config, quinzenais).escala5x2 + Math.floor(aleatorio() * 3);
+      const n = pessoasNecessarias(config, quinzenais).pessoas + Math.floor(aleatorio() * 3);
       const funcionarios = equipe(n).map((f, i) => ({ ...f, domingoQuinzenal: i < quinzenais }));
       const dias = intervaloDoMes(config.ano, config.mes);
       if (validar(config, funcionarios, dias, gerarEscala(config, funcionarios, dias)).length) comAlerta++;
@@ -143,21 +144,71 @@ describe("validar", () => {
 
 describe("pessoasNecessarias", () => {
   it("calcula 5x2 e 6x1 com a regra de domingo do comércio", () => {
-    expect(pessoasNecessarias(configBase())).toEqual({ escala5x2: 5, escala6x1: 5 });
+    expect(pessoasNecessarias(configBase())).toEqual({ pessoas: 5, comparacao: { tipo: "6x1", pessoas: 4 } });
     expect(pessoasNecessarias(configBase({ minimoPorDia: [2, 3, 3, 3, 3, 4, 4] }))).toEqual({
-      escala5x2: 5,
-      escala6x1: 4,
+      pessoas: 5,
+      comparacao: { tipo: "6x1", pessoas: 4 },
     });
   });
 
   it("reserva vagas de domingo para quem tem revezamento quinzenal", () => {
     const config = configBase({ minimoPorDia: [6, 3, 3, 3, 3, 3, 3] });
-    expect(pessoasNecessarias(config).escala5x2).toBe(9);
-    expect(pessoasNecessarias(config, 5).escala5x2).toBe(11);
+    expect(pessoasNecessarias(config).pessoas).toBe(9);
+    expect(pessoasNecessarias(config, 5).pessoas).toBe(11);
   });
 
   it("considera dias fechados", () => {
     const config = configBase({ diasAbertos: [false, true, true, true, true, true, false] });
-    expect(pessoasNecessarias(config)).toEqual({ escala5x2: 3, escala6x1: 3 });
+    expect(pessoasNecessarias(config)).toEqual({ pessoas: 3, comparacao: { tipo: "6x1", pessoas: 3 } });
+  });
+});
+
+describe("tipos de escala", () => {
+  it("6x1 dá 1 folga por semana e respeita 40 horas com turno de 6h40", () => {
+    const config = configBase({ tipo: "6x1", horasPorDia: 20 / 3, regraDomingo: "nenhuma", minimoPorDia: [2, 3, 3, 3, 3, 4, 4] });
+    const dias = intervaloDoMes(config.ano, config.mes);
+    const funcionarios = equipe(pessoasNecessarias(config).pessoas);
+    const escala = gerarEscala(config, funcionarios, dias);
+    for (const folgas of Object.values(escala)) {
+      for (const semana of semanasDe(folgas)) expect(semana.filter(Boolean).length).toBe(1);
+    }
+    expect(validar(config, funcionarios, dias, escala)).toEqual([]);
+  });
+
+  it("6x1 com turno de 8 horas passa de 40 horas na semana", () => {
+    const config = configBase({ tipo: "6x1", minimoPorDia: [1, 1, 1, 1, 1, 1, 1] });
+    const dias = intervaloDoMes(config.ano, config.mes);
+    const funcionarios = equipe(3);
+    const alertas = validar(config, funcionarios, dias, gerarEscala(config, funcionarios, dias));
+    expect(alertas.some((a) => a.tipo === "jornada")).toBe(true);
+  });
+
+  it.each([
+    ["12x36", 2],
+    ["4x2", 3],
+  ] as const)("%s cobre todos os dias e segue o ciclo de um mês para o outro", (tipo, minimo) => {
+    const config = configBase({ tipo, regraDomingo: "nenhuma", horasPorDia: tipo === "12x36" ? 12 : 8, minimoPorDia: Array(7).fill(minimo) });
+    const funcionarios = equipe(pessoasNecessarias(config).pessoas);
+    for (const mes of [11, 12]) {
+      const dias = intervaloDoMes(2026, mes);
+      expect(validar({ ...config, mes }, funcionarios, dias, gerarEscala({ ...config, mes }, funcionarios, dias))).toEqual([]);
+    }
+    const novembro = intervaloDoMes(2026, 11);
+    const dezembro = intervaloDoMes(2026, 12);
+    const emNovembro = gerarEscala(config, funcionarios, novembro);
+    const emDezembro = gerarEscala({ ...config, mes: 12 }, funcionarios, dezembro);
+    const comum = novembro.findIndex((d) => d.iso === dezembro[0].iso);
+    for (const f of funcionarios) expect(emNovembro[f.id].slice(comum)).toEqual(emDezembro[f.id].slice(0, novembro.length - comum));
+  });
+
+  it("12x36 acusa dois plantões seguidos com o artigo 59-A", () => {
+    const config = configBase({ tipo: "12x36", horasPorDia: 12, minimoPorDia: Array(7).fill(0) });
+    const dias = intervaloDoMes(config.ano, config.mes);
+    const [ana] = equipe(1);
+    const folgas = dias.map((_, i) => i % 2 === 1);
+    folgas[5] = false;
+    const alertas = validar(config, [ana], dias, { [ana.id]: folgas });
+    expect(alertas.filter((a) => a.tipo === "descanso").map((a) => a.lei?.dispositivo.slice(0, 9))).toEqual(["art. 59-A"]);
+    expect(alertas.some((a) => a.tipo === "jornada")).toBe(false);
   });
 });

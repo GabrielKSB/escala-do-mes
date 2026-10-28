@@ -1,6 +1,6 @@
-# Escala 5x2
+# Escala do Mês
 
-Gerador gratuito de escala de trabalho 5x2: cada pessoa com 2 folgas por semana, rodízio de domingos e alertas quando a escala passa dos limites da lei, com o artigo citado.
+Gerador gratuito de escala de trabalho (5x2, 6x1, 4x2 e 12x36), com rodízio de domingos e alertas quando a escala passa dos limites da lei, com o artigo citado.
 
 Roda inteiro no navegador. Não há servidor nem banco de dados: a escala fica no `localStorage` e pode ser compartilhada por link.
 
@@ -12,6 +12,7 @@ Roda inteiro no navegador. Não há servidor nem banco de dados: a escala fica n
 | No máximo 6 dias seguidos sem folga | CLT, art. 67; Constituição, art. 7º, § 2º |
 | Folga no domingo a cada 3 semanas no comércio | Lei 10.101/2000, art. 6º, parágrafo único |
 | Revezamento quinzenal de domingos | CLT, art. 386 |
+| Na 12x36, nunca dois plantões seguidos | CLT, art. 59-A |
 | Mínimo de pessoas por dia | configurado pelo usuário |
 
 A ferramenta é informativa e não substitui a convenção coletiva de cada categoria.

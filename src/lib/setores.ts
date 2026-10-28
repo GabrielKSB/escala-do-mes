@@ -93,7 +93,8 @@ export const SETORES: Setor[] = [
   },
 ];
 
-export const PADRAO: Pick<Configuracao, "diasAbertos" | "minimoPorDia" | "regraDomingo" | "horasPorDia"> = {
+export const PADRAO: Pick<Configuracao, "tipo" | "diasAbertos" | "minimoPorDia" | "regraDomingo" | "horasPorDia"> = {
+  tipo: "5x2",
   diasAbertos: TODOS,
   minimoPorDia: [2, 2, 2, 2, 2, 3, 3],
   regraDomingo: "comercio",
