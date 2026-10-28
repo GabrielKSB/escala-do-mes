@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Escala do Mês: a escala de trabalho pronta em um minuto" }],
   },
   twitter: { card: "summary_large_image", images: ["/og.png"] },
+  other: SITE.adsenseCliente ? { "google-adsense-account": SITE.adsenseCliente } : undefined,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
