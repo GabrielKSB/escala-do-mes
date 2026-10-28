@@ -52,6 +52,14 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
               Ferramenta gratuita e informativa. Não substitui orientação jurídica nem a convenção coletiva da sua
               categoria. A escala fica salva só no seu navegador.
             </p>
+            <p className="mt-2 flex gap-4">
+              <Link href="/como-funciona/" className="hover:text-destaque hover:underline">
+                Como funciona
+              </Link>
+              <Link href="/privacidade/" className="hover:text-destaque hover:underline">
+                Política de privacidade
+              </Link>
+            </p>
             <p className="mt-2 max-w-prose">
               Textos legais conferidos na compilação do Planalto, com apoio do acervo aberto{" "}
               <a href="https://github.com/ctresb/leis" className="underline" target="_blank" rel="noopener noreferrer">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
-import Script from "next/script";
+import { Consentimento } from "@/components/Consentimento";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -29,14 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR">
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         {children}
-        {SITE.adsenseCliente && (
-          <Script
-            async
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseCliente}`}
-          />
-        )}
+        {SITE.adsenseCliente && <Consentimento />}
       </body>
     </html>
   );

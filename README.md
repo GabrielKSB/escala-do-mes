@@ -37,6 +37,9 @@ npm run build
 | `NEXT_PUBLIC_SITE_URL` | URL pública do site, usada no sitemap, robots e URLs canônicas |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | ID do cliente AdSense (`ca-pub-...`); sem ele, nenhum anúncio é carregado |
 | `NEXT_PUBLIC_ADSENSE_SLOT` | ID do bloco de anúncio |
+| `NEXT_PUBLIC_EMAIL_CONTATO` | E-mail de contato mostrado na política de privacidade |
+
+Com `NEXT_PUBLIC_ADSENSE_CLIENT` definido, o build gera `/ads.txt` com a linha do Google e o site mostra o aviso de cookies. O script do AdSense só carrega depois da escolha do visitante; quem escolhe anúncios básicos recebe anúncios não personalizados.
 
 ## Estrutura
 
