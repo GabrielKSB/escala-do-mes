@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdSlot } from "@/components/AdSlot";
+import { IndiceLateral } from "@/components/IndiceLateral";
 import { Moldura } from "@/components/Moldura";
 import { LEIS } from "@/lib/escala/leis";
 
@@ -47,6 +48,7 @@ const PERGUNTAS = [
 const SECOES = [
   { id: "passos", titulo: "Montar em 3 passos" },
   { id: "tipos", titulo: "Tipos de escala" },
+  { id: "escala-5x2", titulo: "Mais sobre a 5x2" },
   { id: "regras", titulo: "Regras conferidas" },
   { id: "perguntas", titulo: "Perguntas frequentes" },
 ];
@@ -65,17 +67,7 @@ export default function ComoFunciona() {
   return (
     <Moldura pagina="como-funciona">
       <main className="mx-auto grid max-w-5xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <nav aria-label="Nesta página" className="hidden lg:block">
-          <ul className="sticky top-8 space-y-1 border-l border-borda text-sm">
-            {SECOES.map((s) => (
-              <li key={s.id}>
-                <a href={`#${s.id}`} className="-ml-px block border-l border-transparent py-1 pl-4 text-apagado hover:border-destaque hover:text-destaque">
-                  {s.titulo}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <IndiceLateral secoes={SECOES} />
 
         <article className="max-w-2xl space-y-14 leading-relaxed">
           <header>
