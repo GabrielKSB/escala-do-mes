@@ -66,10 +66,10 @@ export default function ComoFunciona() {
     <Moldura pagina="como-funciona">
       <main className="mx-auto grid max-w-5xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[200px_minmax(0,1fr)]">
         <nav aria-label="Nesta página" className="hidden lg:block">
-          <ul className="sticky top-8 space-y-1 border-l border-grade text-sm">
+          <ul className="sticky top-8 space-y-1 border-l border-borda text-sm">
             {SECOES.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="-ml-px block border-l border-transparent py-1 pl-4 text-apagado hover:border-tinta hover:text-tinta">
+                <a href={`#${s.id}`} className="-ml-px block border-l border-transparent py-1 pl-4 text-apagado hover:border-destaque hover:text-destaque">
                   {s.titulo}
                 </a>
               </li>
@@ -79,14 +79,14 @@ export default function ComoFunciona() {
 
         <article className="max-w-2xl space-y-14 leading-relaxed">
           <header>
-            <h1 className="text-3xl font-bold text-tinta sm:text-4xl">Como funciona</h1>
+            <h1 className="text-3xl font-semibold text-destaque sm:text-4xl">Como funciona</h1>
             <p className="mt-3 text-lg text-apagado">
               O gerador monta a escala do mês sozinho. Você só diz como a empresa funciona e quem está na equipe.
             </p>
           </header>
 
           <section id="passos" className="scroll-mt-8">
-            <h2 className="text-2xl font-bold">Montar em 3 passos</h2>
+            <h2 className="text-2xl font-semibold">Montar em 3 passos</h2>
             <ol className="mt-5 space-y-5">
               {[
                 ["Empresa", "Desligue os dias em que fecha e diga quantas pessoas cada dia precisa no mínimo."],
@@ -94,7 +94,7 @@ export default function ComoFunciona() {
                 ["Escala", "As folgas aparecem marcadas no mês. Clique num dia para trocar, depois imprima ou mande pelo WhatsApp."],
               ].map(([titulo, texto], i) => (
                 <li key={titulo} className="flex gap-4">
-                  <span className="marca-texto flex size-9 shrink-0 items-center justify-center text-lg font-bold text-tinta">
+                  <span className="folga flex size-9 shrink-0 items-center justify-center text-lg font-semibold text-destaque">
                     {i + 1}
                   </span>
                   <p>
@@ -104,15 +104,15 @@ export default function ComoFunciona() {
               ))}
             </ol>
             <Link
-              href="/"
-              className="mt-6 inline-flex rounded-lg bg-tinta px-4 py-2.5 font-bold text-white hover:bg-tinta-escura"
+              href="/gerador/"
+              className="mt-6 inline-flex rounded-lg bg-destaque px-4 py-2.5 font-semibold text-destaque-texto hover:bg-destaque-forte"
             >
               Abrir o gerador
             </Link>
           </section>
 
           <section id="escala-5x2" className="scroll-mt-8">
-            <h2 className="text-2xl font-bold">O que é a escala 5x2</h2>
+            <h2 className="text-2xl font-semibold">O que é a escala 5x2</h2>
             <p className="mt-4">
               Na escala 5x2 cada pessoa trabalha 5 dias e folga 2 por semana. Com turnos de 8 horas, isso fecha as 40
               horas semanais previstas no art. 7º, XIII, da Constituição, na redação dada pela Emenda Constitucional
@@ -128,16 +128,16 @@ export default function ComoFunciona() {
           <AdSlot />
 
           <section id="regras" className="scroll-mt-8">
-            <h2 className="text-2xl font-bold">Regras conferidas</h2>
+            <h2 className="text-2xl font-semibold">Regras conferidas</h2>
             <p className="mt-4">Quando a escala passa de um destes limites, o gerador mostra o aviso com o artigo.</p>
-            <dl className="mt-5 divide-y divide-grade border-y border-grade">
+            <dl className="mt-5 divide-y divide-borda border-y border-borda">
               {[LEIS.jornada, LEIS.descansoSemanal, LEIS.repousoMedio, LEIS.domingoComercio, LEIS.domingoQuinzenal].map(
                 (lei) => (
                   <div key={lei.dispositivo} className="py-4">
-                    <dt className="font-bold">{lei.norma}</dt>
+                    <dt className="font-semibold">{lei.norma}</dt>
                     <dd className="mt-1">
                       {lei.dispositivo}.{" "}
-                      <a href={lei.url} target="_blank" rel="noopener noreferrer" className="text-tinta underline underline-offset-2">
+                      <a href={lei.url} target="_blank" rel="noopener noreferrer" className="text-destaque underline underline-offset-2">
                         Texto oficial
                       </a>
                     </dd>
@@ -151,13 +151,13 @@ export default function ComoFunciona() {
           </section>
 
           <section id="perguntas" className="scroll-mt-8">
-            <h2 className="text-2xl font-bold">Perguntas frequentes</h2>
-            <div className="mt-5 divide-y divide-grade border-y border-grade">
+            <h2 className="text-2xl font-semibold">Perguntas frequentes</h2>
+            <div className="mt-5 divide-y divide-borda border-y border-borda">
               {PERGUNTAS.map(({ pergunta, resposta }) => (
                 <details key={pergunta} className="group py-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold marker:hidden">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold marker:hidden">
                     {pergunta}
-                    <span aria-hidden className="text-xl text-tinta transition-transform group-open:rotate-45">
+                    <span aria-hidden className="text-xl text-destaque transition-transform group-open:rotate-45">
                       +
                     </span>
                   </summary>

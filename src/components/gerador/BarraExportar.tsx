@@ -72,7 +72,7 @@ export function BarraExportar({
       {aviso && (
         <span
           role="status"
-          className={`hidden items-center gap-1 text-sm font-bold sm:inline-flex ${aviso.ok ? "text-ok" : "text-caneta"}`}
+          className={`hidden items-center gap-1 text-sm font-semibold sm:inline-flex ${aviso.ok ? "text-destaque" : "text-perigo"}`}
         >
           {aviso.ok ? <Check className="size-4" /> : <CircleAlert className="size-4" />}
           {aviso.texto}
@@ -81,7 +81,7 @@ export function BarraExportar({
       <button
         type="button"
         onClick={() => window.print()}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-grade bg-white px-3 py-2 text-sm font-bold text-tinta hover:border-tinta focus-visible:outline-2 focus-visible:outline-tinta"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-borda bg-superficie px-3 py-2 text-sm font-semibold text-destaque hover:border-destaque focus-visible:outline-2 focus-visible:outline-destaque"
       >
         <Printer className="size-4" />
         Imprimir
@@ -91,7 +91,7 @@ export function BarraExportar({
         aria-haspopup="menu"
         aria-expanded={aberto}
         onClick={() => setAberto(!aberto)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-tinta px-3 py-2 text-sm font-bold text-white hover:bg-tinta-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-destaque px-3 py-2 text-sm font-semibold text-destaque-texto hover:bg-destaque-forte focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destaque"
       >
         <Send className="size-4" />
         Enviar
@@ -100,7 +100,7 @@ export function BarraExportar({
       {aberto && (
         <div
           role="menu"
-          className="absolute top-full right-0 z-40 mt-2 w-64 overflow-hidden rounded-xl border border-grade bg-white py-1 shadow-lg"
+          className="absolute top-full right-0 z-40 mt-2 w-64 overflow-hidden rounded-xl border border-borda bg-superficie py-1 shadow-lg"
         >
           <ItemMenu icone={<MessageCircle className="size-4" />} titulo="WhatsApp" descricao="Lista de folgas de cada pessoa" onClick={enviarWhatsApp} />
           <ItemMenu icone={<ImageDown className="size-4" />} titulo="Baixar imagem" descricao="Para postar no grupo" onClick={baixarImagem} />
@@ -108,7 +108,7 @@ export function BarraExportar({
         </div>
       )}
       {aviso && (
-        <span role="status" className={`absolute top-full right-0 mt-2 text-sm font-bold sm:hidden ${aviso.ok ? "text-ok" : "text-caneta"}`}>
+        <span role="status" className={`absolute top-full right-0 mt-2 text-sm font-semibold sm:hidden ${aviso.ok ? "text-destaque" : "text-perigo"}`}>
           {aviso.texto}
         </span>
       )}
@@ -132,11 +132,11 @@ function ItemMenu({
       type="button"
       role="menuitem"
       onClick={onClick}
-      className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-papel focus-visible:bg-papel focus-visible:outline-none"
+      className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-fundo focus-visible:bg-fundo focus-visible:outline-none"
     >
-      <span className="mt-0.5 text-tinta">{icone}</span>
+      <span className="mt-0.5 text-destaque">{icone}</span>
       <span>
-        <span className="block font-bold">{titulo}</span>
+        <span className="block font-semibold">{titulo}</span>
         <span className="block text-sm text-apagado">{descricao}</span>
       </span>
     </button>

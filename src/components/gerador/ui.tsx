@@ -1,10 +1,10 @@
 const CORES_AVATAR = [
-  "bg-[#dbe7fb] text-[#1e3a6e]",
-  "bg-[#fde8c8] text-[#7a4a06]",
-  "bg-[#d9f0e3] text-[#1f6a45]",
-  "bg-[#f3dcef] text-[#7a2a6e]",
-  "bg-[#e3e0fa] text-[#3d3394]",
-  "bg-[#fbdcd6] text-[#8a2c1f]",
+  "bg-[#12302a] text-[#5ee6c8]",
+  "bg-[#2e2611] text-[#f2c94c]",
+  "bg-[#172436] text-[#8fb8ff]",
+  "bg-[#2d1a2e] text-[#e39be0]",
+  "bg-[#211f3b] text-[#ab9fff]",
+  "bg-[#2c1714] text-[#f49c8c]",
 ];
 
 export function Avatar({ nome, indice, pequeno }: { nome: string; indice: number; pequeno?: boolean }) {
@@ -12,7 +12,7 @@ export function Avatar({ nome, indice, pequeno }: { nome: string; indice: number
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold ${
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold ${
         CORES_AVATAR[indice % CORES_AVATAR.length]
       } ${pequeno ? "size-6 text-xs" : "size-8 text-sm"}`}
     >
@@ -37,12 +37,12 @@ export function Interruptor({
       aria-checked={ligado}
       aria-label={rotulo}
       onClick={() => aoMudar(!ligado)}
-      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta ${
-        ligado ? "bg-tinta" : "bg-grade"
+      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destaque ${
+        ligado ? "bg-destaque" : "bg-borda"
       }`}
     >
       <span
-        className={`inline-block size-5 rounded-full bg-white shadow-sm transition-transform ${
+        className={`inline-block size-5 rounded-full bg-texto shadow-sm transition-transform ${
           ligado ? "translate-x-[18px]" : "translate-x-0.5"
         }`}
       />
@@ -66,10 +66,10 @@ export function Contador({
   desativado?: boolean;
 }) {
   const botao =
-    "inline-flex size-8 items-center justify-center rounded-md text-lg leading-none text-tinta hover:bg-tinta-clara disabled:text-grade disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-tinta";
+    "inline-flex size-8 items-center justify-center rounded-md text-lg leading-none text-destaque hover:bg-destaque-suave disabled:text-borda disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-destaque";
   return (
     <div
-      className={`inline-flex items-center rounded-lg border border-grade bg-white ${desativado ? "opacity-50" : ""}`}
+      className={`inline-flex items-center rounded-lg border border-borda bg-superficie ${desativado ? "opacity-50" : ""}`}
     >
       <button
         type="button"
@@ -80,7 +80,7 @@ export function Contador({
       >
         −
       </button>
-      <span className="w-6 text-center font-bold tabular-nums" aria-live="polite">
+      <span className="w-6 text-center font-semibold tabular-nums" aria-live="polite">
         {valor}
       </span>
       <button

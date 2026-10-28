@@ -56,7 +56,7 @@ export function PassoEquipe({
   return (
     <div className="flex min-h-full flex-col">
       <div className="p-5 pb-3">
-        <p className={`rounded-lg px-4 py-3 text-sm ${faltam > 0 ? "bg-marca/40" : "bg-tinta-clara"}`}>
+        <p className={`rounded-lg px-4 py-3 text-sm ${faltam > 0 ? "bg-destaque-suave" : "bg-destaque-suave"}`}>
           Na 5x2, os mínimos que você definiu pedem <strong>{necessario.escala5x2} pessoas</strong>
           {necessario.escala6x1 !== necessario.escala5x2 && <> (na 6x1 seriam {necessario.escala6x1})</>}.{" "}
           {faltam > 0 ? (
@@ -65,7 +65,7 @@ export function PassoEquipe({
               onClick={() =>
                 adicionar(Array.from({ length: faltam }, (_, i) => `Pessoa ${funcionarios.length + i + 1}`))
               }
-              className="font-bold text-tinta underline underline-offset-2"
+              className="font-semibold text-destaque underline underline-offset-2"
             >
               Adicionar {faltam === 1 ? "1 pessoa" : `${faltam} pessoas`}
             </button>
@@ -80,26 +80,26 @@ export function PassoEquipe({
           const expandido = aberto === f.id;
           const temPreferencia = f.folgasPreferidas.length > 0 || f.domingoQuinzenal;
           return (
-            <li key={f.id} className={`rounded-lg ${expandido ? "bg-white ring-1 ring-grade" : ""}`}>
-              <div className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white">
+            <li key={f.id} className={`rounded-lg ${expandido ? "bg-superficie ring-1 ring-borda" : ""}`}>
+              <div className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-superficie">
                 <Avatar nome={f.nome} indice={indice} />
                 <input
                   value={f.nome}
                   onChange={(e) => atualizar(f.id, { nome: e.target.value })}
                   aria-label={`Nome da pessoa ${indice + 1}`}
                   maxLength={60}
-                  className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 font-bold focus:bg-white focus:outline-2 focus:outline-tinta"
+                  className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 font-semibold focus:bg-superficie focus:outline-2 focus:outline-destaque"
                 />
                 <button
                   type="button"
                   onClick={() => setAberto(expandido ? null : f.id)}
                   aria-expanded={expandido}
-                  className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-tinta-clara focus-visible:outline-2 focus-visible:outline-tinta ${
-                    temPreferencia ? "text-tinta" : "text-apagado"
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-destaque-suave focus-visible:outline-2 focus-visible:outline-destaque ${
+                    temPreferencia ? "text-destaque" : "text-apagado"
                   }`}
                 >
                   Folgas
-                  {temPreferencia && <span className="size-1.5 rounded-full bg-tinta" aria-label="com preferência" />}
+                  {temPreferencia && <span className="size-1.5 rounded-full bg-destaque" aria-label="com preferência" />}
                   <ChevronDown className={`size-4 transition-transform ${expandido ? "rotate-180" : ""}`} />
                 </button>
                 <button
@@ -107,7 +107,7 @@ export function PassoEquipe({
                   onClick={() => aoMudar(funcionarios.filter((x) => x.id !== f.id))}
                   aria-label={`Remover ${f.nome}`}
                   title={`Remover ${f.nome}`}
-                  className="rounded-md p-1.5 text-apagado hover:bg-caneta-clara hover:text-caneta focus-visible:outline-2 focus-visible:outline-tinta"
+                  className="rounded-md p-1.5 text-apagado hover:bg-perigo-suave hover:text-perigo focus-visible:outline-2 focus-visible:outline-destaque"
                 >
                   <X className="size-4" />
                 </button>
@@ -125,8 +125,8 @@ export function PassoEquipe({
                             type="button"
                             aria-pressed={ativo}
                             onClick={() => alternarPreferencia(f, dia)}
-                            className={`rounded-md px-2.5 py-1.5 text-sm font-bold focus-visible:outline-2 focus-visible:outline-tinta ${
-                              ativo ? "marca-texto text-tinta" : "bg-papel text-apagado hover:text-texto"
+                            className={`rounded-md px-2.5 py-1.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-destaque ${
+                              ativo ? "folga text-destaque" : "bg-fundo text-apagado hover:text-texto"
                             }`}
                           >
                             {SIGLAS_DIAS[dia]}
@@ -156,7 +156,7 @@ export function PassoEquipe({
 
       <form
         onSubmit={enviar}
-        className="sticky bottom-16 flex gap-2 border-t border-grade bg-papel p-3 lg:bottom-0"
+        className="sticky bottom-16 flex gap-2 border-t border-borda bg-fundo p-3 lg:bottom-0"
       >
         <input
           value={nome}
@@ -164,11 +164,11 @@ export function PassoEquipe({
           placeholder="Nome da pessoa"
           aria-label="Nome da nova pessoa"
           maxLength={60}
-          className="min-w-0 flex-1 rounded-lg border border-grade bg-white px-3 py-2 focus-visible:outline-2 focus-visible:outline-tinta"
+          className="min-w-0 flex-1 rounded-lg border border-borda bg-superficie px-3 py-2 focus-visible:outline-2 focus-visible:outline-destaque"
         />
         <button
           type="submit"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-tinta px-3.5 py-2 font-bold text-white hover:bg-tinta-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-destaque px-3.5 py-2 font-semibold text-destaque-texto hover:bg-destaque-forte focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destaque"
         >
           <Plus className="size-4" />
           Adicionar

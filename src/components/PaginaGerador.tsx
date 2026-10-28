@@ -18,10 +18,10 @@ export function PaginaGerador({
     <Moldura pagina="gerador">
       <main className="mx-auto max-w-[1440px] px-4 pb-4 sm:px-6 print:max-w-none print:px-0">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-4 print:hidden">
-          <h1 className="text-2xl font-bold text-tinta">{titulo}</h1>
+          <h1 className="font-display text-2xl font-semibold text-texto">{titulo}</h1>
           <p className="text-apagado">
             {introducao}{" "}
-            <Link href="/como-funciona/" className="text-tinta underline underline-offset-2">
+            <Link href="/como-funciona/" className="text-destaque underline underline-offset-2">
               Como funciona
             </Link>
           </p>

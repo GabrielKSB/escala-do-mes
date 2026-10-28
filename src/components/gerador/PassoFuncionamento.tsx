@@ -26,9 +26,9 @@ export function PassoFuncionamento({
   return (
     <div className="space-y-7 p-5">
       <section>
-        <h3 className="font-bold">Dias e equipe mínima</h3>
+        <h3 className="font-semibold">Dias e equipe mínima</h3>
         <p className="mt-0.5 text-sm text-apagado">Desligue os dias em que fecha. Os números são o mínimo de pessoas trabalhando.</p>
-        <ul className="mt-3 divide-y divide-grade">
+        <ul className="mt-3 divide-y divide-borda">
           {ORDEM_DIAS.map((dia) => {
             const aberto = config.diasAbertos[dia];
             return (
@@ -38,7 +38,7 @@ export function PassoFuncionamento({
                   aoMudar={(v) => mudarDia(dia, "diasAbertos", v)}
                   rotulo={`${NOMES_DIAS[dia]} aberto`}
                 />
-                <span className={`flex-1 ${aberto ? "" : "text-apagado line-through decoration-grade"}`}>
+                <span className={`flex-1 ${aberto ? "" : "text-apagado line-through decoration-borda"}`}>
                   {NOMES_DIAS[dia]}
                 </span>
                 {aberto ? (
@@ -57,14 +57,14 @@ export function PassoFuncionamento({
       </section>
 
       <section className="flex items-center justify-between gap-3">
-        <label htmlFor="horas-por-dia" className="font-bold">
+        <label htmlFor="horas-por-dia" className="font-semibold">
           Turno de cada pessoa
         </label>
         <select
           id="horas-por-dia"
           value={config.horasPorDia}
           onChange={(e) => aoMudar({ ...config, horasPorDia: Number(e.target.value) })}
-          className="rounded-lg border border-grade bg-white px-3 py-2 focus-visible:outline-2 focus-visible:outline-tinta"
+          className="rounded-lg border border-borda bg-superficie px-3 py-2 focus-visible:outline-2 focus-visible:outline-destaque"
         >
           {[4, 5, 6, 7, 8, 9, 10].map((h) => (
             <option key={h} value={h}>
@@ -76,15 +76,15 @@ export function PassoFuncionamento({
 
       {config.diasAbertos[0] && (
         <fieldset>
-          <legend className="font-bold">Folga no domingo</legend>
+          <legend className="font-semibold">Folga no domingo</legend>
           <div className="mt-3 grid gap-2">
             {REGRAS.map((regra) => {
               const ativa = config.regraDomingo === regra.valor;
               return (
                 <label
                   key={regra.valor}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-tinta ${
-                    ativa ? "border-tinta bg-tinta-clara" : "border-grade bg-white hover:border-apagado"
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-destaque ${
+                    ativa ? "border-destaque bg-destaque-suave" : "border-borda bg-superficie hover:border-apagado"
                   }`}
                 >
                   <input
@@ -96,10 +96,10 @@ export function PassoFuncionamento({
                   />
                   <span
                     aria-hidden
-                    className={`size-4 shrink-0 rounded-full border-2 ${ativa ? "border-tinta bg-tinta ring-2 ring-inset ring-white" : "border-grade"}`}
+                    className={`size-4 shrink-0 rounded-full border-2 ${ativa ? "border-destaque bg-destaque ring-2 ring-inset ring-superficie" : "border-borda"}`}
                   />
                   <span className="text-sm">
-                    <span className="font-bold">{regra.titulo}</span>
+                    <span className="font-semibold">{regra.titulo}</span>
                     <span className="block text-apagado">{regra.descricao}</span>
                   </span>
                 </label>
