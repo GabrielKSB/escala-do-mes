@@ -1,9 +1,9 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal, Undo2, Users } from "lucide-react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { pessoasNecessarias } from "@/lib/escala/calculadora";
-import { NOMES_MESES, intervaloDoMes, proximoMes } from "@/lib/escala/calendario";
+import { NOMES_MESES, intervaloDoMes, proximoMes, rotuloMes } from "@/lib/escala/calendario";
 import {
   type EstadoSalvo,
   aplicarEdicoes,
@@ -18,12 +18,13 @@ import type { Configuracao } from "@/lib/escala/tipos";
 import { validar } from "@/lib/escala/validacao";
 import { BarraExportar } from "./BarraExportar";
 import { GradeEscala, chaveCelula } from "./GradeEscala";
-import { ListaAlertas, Resumo } from "./PainelAlertas";
+import { ListaAlertas } from "./PainelAlertas";
 import { PassoEquipe, novoFuncionario } from "./PassoEquipe";
 import { PassoFuncionamento } from "./PassoFuncionamento";
-import { Cartao, TituloPasso } from "./ui";
 
 export type Predefinicao = Pick<Configuracao, "diasAbertos" | "minimoPorDia" | "regraDomingo" | "horasPorDia">;
+type Aba = "empresa" | "equipe";
+type Vista = "escala" | Aba;
 
 function estadoInicial(predefinicao: Predefinicao): EstadoSalvo {
   const config: Configuracao = { ...proximoMes(), ...predefinicao };
@@ -42,6 +43,11 @@ function lerSalvo(chave: string): EstadoSalvo | null {
   } catch {
     return null;
   }
+}
+
+function hojeIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function Gerador({ predefinicao, chave }: { predefinicao: Predefinicao; chave: string }) {
@@ -81,7 +87,12 @@ export function Gerador({ predefinicao, chave }: { predefinicao: Predefinicao; c
   }, []);
 
   if (!estado) {
-    return <div className="h-[640px] animate-pulse rounded-2xl bg-slate-200/60" aria-label="Carregando o gerador" />;
+    return (
+      <div
+        className="h-[calc(100dvh-10rem)] min-h-[560px] animate-pulse rounded-2xl border border-grade bg-white"
+        aria-label="Carregando o gerador"
+      />
+    );
   }
 
   return (
@@ -106,9 +117,12 @@ function Editor({
   recomecar: () => void;
 }) {
   const { config, funcionarios, edicoes } = estado;
+  const [aba, setAba] = useState<Aba>("empresa");
+  const [vista, setVista] = useState<Vista>("escala");
+  const [alertasAbertos, setAlertasAbertos] = useState(false);
   const [alertaSelecionado, setAlertaSelecionado] = useState<string | null>(null);
   const tabela = useRef<HTMLTableElement>(null);
-  const areaGrade = useRef<HTMLDivElement>(null);
+  const hoje = useMemo(hojeIso, []);
 
   const dias = useMemo(() => intervaloDoMes(config.ano, config.mes), [config.ano, config.mes]);
   const base = useMemo(() => gerarEscala(config, funcionarios, dias), [config, funcionarios, dias]);
@@ -119,6 +133,14 @@ function Editor({
     [config, funcionarios],
   );
 
+  const quantidadeAlertas = alertas.length;
+  const anterior = useRef(quantidadeAlertas);
+  useEffect(() => {
+    if (anterior.current === 0 && quantidadeAlertas > 0) setAlertasAbertos(true);
+    if (quantidadeAlertas === 0) setAlertasAbertos(false);
+    anterior.current = quantidadeAlertas;
+  }, [quantidadeAlertas]);
+
   const editados = useMemo(() => {
     const conjunto = new Set<string>();
     for (const f of funcionarios) {
@@ -128,7 +150,6 @@ function Editor({
     }
     return conjunto;
   }, [funcionarios, dias, edicoes]);
-  const totalEditados = editados.size;
 
   const alerta = alertas.find((a) => a.id === alertaSelecionado);
   const destacados = useMemo(() => {
@@ -136,89 +157,144 @@ function Editor({
     const pessoas = alerta.funcionarioId ? [alerta.funcionarioId] : funcionarios.map((f) => f.id);
     return new Set(pessoas.flatMap((id) => alerta.dias.map((i) => chaveCelula(id, i))));
   }, [alerta, funcionarios]);
-
-  const descobertos = new Set(alertas.filter((a) => a.tipo === "cobertura").flatMap((a) => a.dias));
-  const abertosNoMes = dias.flatMap((d, i) => (d.noMes && config.diasAbertos[d.semana] ? [i] : []));
-  const diasCobertos = abertosNoMes.filter((i) => !descobertos.has(i)).length;
+  const pessoasComAlerta = useMemo(
+    () => new Set(alertas.flatMap((a) => (a.funcionarioId ? [a.funcionarioId] : []))),
+    [alertas],
+  );
 
   const alternar = (funcionarioId: string, indice: number) => {
-    const dia = dias[indice];
-    const chave = chaveEdicao(funcionarioId, dia.iso);
+    const chave = chaveEdicao(funcionarioId, dias[indice].iso);
     const novoValor = !escala[funcionarioId][indice];
-    atualizar((anterior) => {
-      const proximas = { ...anterior.edicoes };
+    atualizar((e) => {
+      const proximas = { ...e.edicoes };
       if (base[funcionarioId][indice] === novoValor) delete proximas[chave];
       else proximas[chave] = novoValor;
-      return { ...anterior, edicoes: proximas };
+      return { ...e, edicoes: proximas };
     });
   };
 
-  const selecionarAlerta = (id: string | null) => {
-    setAlertaSelecionado(id);
-    if (id) areaGrade.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  const mudarMes = (delta: number) => {
+    const total = config.ano * 12 + config.mes - 1 + delta;
+    atualizar((e) => ({ ...e, config: { ...e.config, ano: Math.floor(total / 12), mes: (total % 12) + 1 } }));
   };
 
-  const nomeMes = `${NOMES_MESES[config.mes - 1]}-${config.ano}`;
+  const mudarEquipe = (lista: typeof funcionarios) =>
+    atualizar((e) => {
+      const ids = new Set(lista.map((f) => f.id));
+      const proximas = Object.fromEntries(Object.entries(e.edicoes).filter(([c]) => ids.has(c.split("|")[0])));
+      return { ...e, funcionarios: lista, edicoes: proximas };
+    });
+
+  const abrir = (destino: Vista) => {
+    setVista(destino);
+    if (destino !== "escala") setAba(destino);
+  };
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-      <div className="space-y-6 print:hidden">
-        <PassoFuncionamento config={config} aoMudar={(c) => atualizar((e) => ({ ...e, config: c }))} />
-        <PassoEquipe
-          funcionarios={funcionarios}
-          necessario={necessario}
-          aoMudar={(lista) =>
-            atualizar((e) => {
-              const ids = new Set(lista.map((f) => f.id));
-              const edicoes = Object.fromEntries(
-                Object.entries(e.edicoes).filter(([chave]) => ids.has(chave.split("|")[0])),
-              );
-              return { ...e, funcionarios: lista, edicoes };
-            })
-          }
-        />
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm("Recomeçar do zero? A equipe e os ajustes desta escala serão apagados.")) recomecar();
-          }}
-          className="text-sm text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
+    <>
+      <div className="overflow-clip rounded-2xl border border-grade bg-white shadow-[0_1px_2px_rgb(20_42_82/0.06)] lg:grid lg:h-[calc(100dvh-10rem)] lg:min-h-[560px] lg:grid-cols-[360px_minmax(0,1fr)] print:block print:h-auto print:border-0 print:shadow-none">
+        <aside
+          className={`${vista === "escala" ? "hidden" : "flex"} flex-col bg-papel lg:flex lg:min-h-0 lg:border-r lg:border-grade print:hidden`}
         >
-          Recomeçar do zero
-        </button>
-      </div>
-
-      <div id="escala" className="min-w-0 scroll-mt-4 space-y-4">
-        {doLink && (
-          <p className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900 print:hidden">
-            Você abriu uma escala compartilhada. Ela só fica salva neste navegador depois que você fizer alguma alteração.
-          </p>
-        )}
-        <div className="print:hidden">
-          <Resumo alertas={alertas} diasCobertos={diasCobertos} diasAbertos={abertosNoMes.length} />
-        </div>
-
-        <Cartao className="overflow-hidden print:border-0 print:shadow-none">
-          <div className="print:hidden">
-            <TituloPasso
-              numero={3}
-              titulo="Sua escala"
-              descricao="Clique em um dia para trocar entre trabalho e folga."
-              acao={
-                totalEditados > 0 && (
+          <div role="tablist" aria-label="Configurações" className="hidden gap-1 border-b border-grade p-2 lg:flex">
+            <BotaoAba ativa={aba === "empresa"} onClick={() => setAba("empresa")}>
+              Empresa
+            </BotaoAba>
+            <BotaoAba ativa={aba === "equipe"} onClick={() => setAba("equipe")}>
+              Equipe <span className="ml-1 rounded-full bg-tinta-clara px-1.5 text-xs text-tinta">{funcionarios.length}</span>
+            </BotaoAba>
+          </div>
+          <div role="tabpanel" className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+            {aba === "empresa" ? (
+              <>
+                <PassoFuncionamento config={config} aoMudar={(c) => atualizar((e) => ({ ...e, config: c }))} />
+                <div className="border-t border-grade px-5 py-4">
                   <button
                     type="button"
-                    onClick={() => atualizar((e) => ({ ...e, edicoes: {} }))}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                    onClick={() => {
+                      if (window.confirm("Apagar a equipe e os ajustes e começar uma escala nova?")) recomecar();
+                    }}
+                    className="text-sm text-apagado underline underline-offset-2 hover:text-caneta"
                   >
-                    <RotateCcw className="size-3.5" />
-                    Desfazer {totalEditados} {totalEditados === 1 ? "ajuste" : "ajustes"}
+                    Começar uma escala nova
                   </button>
-                )
-              }
-            />
+                </div>
+              </>
+            ) : (
+              <PassoEquipe funcionarios={funcionarios} necessario={necessario} aoMudar={mudarEquipe} />
+            )}
           </div>
-          <div ref={areaGrade} className="overflow-x-auto print:overflow-visible">
+        </aside>
+
+        <section
+          aria-label="Escala do mês"
+          className={`${vista === "escala" ? "flex" : "hidden"} min-w-0 flex-col lg:flex lg:min-h-0 print:flex`}
+        >
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-grade px-4 py-3 print:hidden">
+            <div className="flex items-center">
+              <BotaoIcone rotulo="Mês anterior" onClick={() => mudarMes(-1)}>
+                <ChevronLeft className="size-5" />
+              </BotaoIcone>
+              <h2 className="min-w-40 text-center text-lg font-bold" aria-live="polite">
+                {rotuloMes(config.ano, config.mes)}
+              </h2>
+              <BotaoIcone rotulo="Próximo mês" onClick={() => mudarMes(1)}>
+                <ChevronRight className="size-5" />
+              </BotaoIcone>
+            </div>
+
+            {quantidadeAlertas === 0 ? (
+              <span className="inline-flex items-center gap-1.5 text-sm font-bold text-ok">
+                <Check className="size-4" />
+                Dentro das regras
+              </span>
+            ) : (
+              <button
+                type="button"
+                aria-expanded={alertasAbertos}
+                aria-controls="lista-alertas"
+                onClick={() => setAlertasAbertos(!alertasAbertos)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-caneta-clara px-3 py-1 text-sm font-bold text-caneta hover:bg-caneta hover:text-white focus-visible:outline-2 focus-visible:outline-caneta"
+              >
+                {quantidadeAlertas} {quantidadeAlertas === 1 ? "ponto para ajustar" : "pontos para ajustar"}
+                <ChevronDown className={`size-4 transition-transform ${alertasAbertos ? "rotate-180" : ""}`} />
+              </button>
+            )}
+
+            {editados.size > 0 && (
+              <button
+                type="button"
+                onClick={() => atualizar((e) => ({ ...e, edicoes: {} }))}
+                className="inline-flex items-center gap-1.5 text-sm text-apagado hover:text-tinta"
+              >
+                <Undo2 className="size-4" />
+                Desfazer {editados.size === 1 ? "1 troca" : `${editados.size} trocas`}
+              </button>
+            )}
+
+            <div className="ml-auto">
+              <BarraExportar
+                alvo={tabela}
+                nomeArquivo={`escala-${NOMES_MESES[config.mes - 1]}-${config.ano}.png`}
+                textoWhatsApp={() => textoWhatsApp(config, funcionarios, dias, escala)}
+                linkCompartilhar={() => `${window.location.origin}${window.location.pathname}#e=${codificar(estado)}`}
+              />
+            </div>
+          </div>
+
+          {doLink && (
+            <p className="border-b border-grade bg-tinta-clara px-5 py-2.5 text-sm print:hidden">
+              Esta escala veio de um link. Ela só fica salva neste aparelho depois que você mudar alguma coisa.
+            </p>
+          )}
+
+          {alertasAbertos && quantidadeAlertas > 0 && (
+            <div id="lista-alertas" className="max-h-52 shrink-0 overflow-y-auto border-b border-grade print:hidden">
+              <ListaAlertas alertas={alertas} selecionado={alertaSelecionado} aoSelecionar={setAlertaSelecionado} />
+            </div>
+          )}
+
+          <div className="overflow-auto lg:min-h-0 lg:flex-1 print:overflow-visible">
             <GradeEscala
               ref={tabela}
               titulo={`Escala de ${NOMES_MESES[config.mes - 1]} de ${config.ano}`}
@@ -228,44 +304,102 @@ function Editor({
               escala={escala}
               editados={editados}
               destacados={destacados}
+              pessoasComAlerta={pessoasComAlerta}
+              hoje={hoje}
               aoAlternar={alternar}
             />
           </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-1 border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-grade px-4 py-2.5 text-sm text-apagado">
             <span className="inline-flex items-center gap-1.5">
-              <span className="inline-flex size-4 items-center justify-center rounded bg-teal-600 text-[9px] font-bold text-white">
-                F
-              </span>
+              <span className="marca-texto inline-flex h-4 w-5 items-center justify-center text-[10px] font-bold text-tinta">F</span>
               Folga
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="text-slate-400">•</span> Trabalha
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="text-slate-400">–</span> Fechado
+              <span className="hachurado inline-block h-4 w-5 rounded-sm" />
+              Fechado
             </span>
             <span className="inline-flex items-center gap-1.5 print:hidden">
-              <span className="size-1.5 rounded-full bg-amber-400" /> Ajustado por você
+              <span className="size-1.5 rounded-full bg-tinta" />
+              Trocado por você
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="size-3 rounded bg-amber-50 ring-1 ring-amber-200" /> Domingo
-            </span>
+            <span className="print:hidden">Clique num dia para trocar entre trabalho e folga.</span>
           </div>
-        </Cartao>
-
-        <BarraExportar
-          alvo={tabela}
-          nomeArquivo={`escala-${nomeMes}.png`}
-          textoWhatsApp={() => textoWhatsApp(config, funcionarios, dias, escala)}
-          linkCompartilhar={() =>
-            `${window.location.origin}${window.location.pathname}#e=${codificar(estado)}`
-          }
-        />
-
-        <div className="print:hidden">
-          <ListaAlertas alertas={alertas} selecionado={alertaSelecionado} aoSelecionar={selecionarAlerta} />
-        </div>
+        </section>
       </div>
-    </div>
+
+      <nav
+        aria-label="Seções do gerador"
+        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-3 border-t border-grade bg-white lg:hidden print:hidden"
+      >
+        <ItemNav ativo={vista === "escala"} onClick={() => abrir("escala")} icone={<CalendarDays className="size-5" />}>
+          Escala
+          {quantidadeAlertas > 0 && <span className="absolute top-2 right-[calc(50%-1.25rem)] size-2 rounded-full bg-caneta" />}
+        </ItemNav>
+        <ItemNav ativo={vista === "empresa"} onClick={() => abrir("empresa")} icone={<SlidersHorizontal className="size-5" />}>
+          Empresa
+        </ItemNav>
+        <ItemNav ativo={vista === "equipe"} onClick={() => abrir("equipe")} icone={<Users className="size-5" />}>
+          Equipe
+        </ItemNav>
+      </nav>
+    </>
+  );
+}
+
+function BotaoAba({ ativa, onClick, children }: { ativa: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={ativa}
+      onClick={onClick}
+      className={`flex flex-1 items-center justify-center rounded-lg px-3 py-2 font-bold transition-colors focus-visible:outline-2 focus-visible:outline-tinta ${
+        ativa ? "bg-white text-tinta shadow-[0_1px_2px_rgb(20_42_82/0.12)]" : "text-apagado hover:text-texto"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function BotaoIcone({ rotulo, onClick, children }: { rotulo: string; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={rotulo}
+      title={rotulo}
+      onClick={onClick}
+      className="rounded-lg p-1.5 text-tinta hover:bg-tinta-clara focus-visible:outline-2 focus-visible:outline-tinta"
+    >
+      {children}
+    </button>
+  );
+}
+
+function ItemNav({
+  ativo,
+  onClick,
+  icone,
+  children,
+}: {
+  ativo: boolean;
+  onClick: () => void;
+  icone: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-current={ativo ? "page" : undefined}
+      onClick={onClick}
+      className={`relative flex flex-col items-center justify-center gap-0.5 text-sm font-bold ${
+        ativo ? "text-tinta" : "text-apagado"
+      }`}
+    >
+      {icone}
+      {children}
+      {ativo && <span className="absolute top-0 h-0.5 w-10 rounded-full bg-tinta" />}
+    </button>
   );
 }

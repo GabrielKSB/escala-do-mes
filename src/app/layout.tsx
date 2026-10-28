@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Atkinson_Hyperlegible_Next } from "next/font/google";
 import Script from "next/script";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const atkinson = Atkinson_Hyperlegible_Next({ variable: "--font-atkinson", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${atkinson.variable} font-sans`}>
         {children}
         {SITE.adsenseCliente && (
           <Script

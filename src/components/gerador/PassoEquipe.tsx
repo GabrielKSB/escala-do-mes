@@ -1,11 +1,11 @@
 "use client";
 
-import { ChevronDown, Plus, Trash2, Users } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, Plus, X } from "lucide-react";
+import { type FormEvent, useRef, useState } from "react";
 import type { Dimensionamento } from "@/lib/escala/calculadora";
 import { SIGLAS_DIAS } from "@/lib/escala/calendario";
 import type { DiaSemana, Funcionario } from "@/lib/escala/tipos";
-import { Avatar, Cartao, Interruptor, TituloPasso } from "./ui";
+import { Avatar, Interruptor } from "./ui";
 
 const ORDEM_DIAS: DiaSemana[] = [1, 2, 3, 4, 5, 6, 0];
 
@@ -28,15 +28,24 @@ export function PassoEquipe({
   aoMudar: (funcionarios: Funcionario[]) => void;
 }) {
   const [aberto, setAberto] = useState<string | null>(null);
+  const [nome, setNome] = useState("");
+  const fimDaLista = useRef<HTMLLIElement>(null);
   const faltam = necessario.escala5x2 - funcionarios.length;
 
   const atualizar = (id: string, parcial: Partial<Funcionario>) =>
     aoMudar(funcionarios.map((f) => (f.id === id ? { ...f, ...parcial } : f)));
-  const adicionar = (quantidade = 1) =>
-    aoMudar([
-      ...funcionarios,
-      ...Array.from({ length: quantidade }, (_, i) => novoFuncionario(`Pessoa ${funcionarios.length + i + 1}`)),
-    ]);
+
+  const adicionar = (nomes: string[]) => {
+    aoMudar([...funcionarios, ...nomes.map(novoFuncionario)]);
+    requestAnimationFrame(() => fimDaLista.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+  };
+
+  const enviar = (evento: FormEvent) => {
+    evento.preventDefault();
+    adicionar([nome.trim() || `Pessoa ${funcionarios.length + 1}`]);
+    setNome("");
+  };
+
   const alternarPreferencia = (f: Funcionario, dia: DiaSemana) =>
     atualizar(f.id, {
       folgasPreferidas: f.folgasPreferidas.includes(dia)
@@ -45,120 +54,126 @@ export function PassoEquipe({
     });
 
   return (
-    <Cartao>
-      <TituloPasso
-        numero={2}
-        titulo="Sua equipe"
-        descricao="Troque os nomes e, se quiser, os dias preferidos de folga."
-        acao={
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            <Users className="size-3.5" />
-            {funcionarios.length}
-          </span>
-        }
-      />
-      <div className="space-y-4 px-5 py-4">
-        <div className={`rounded-xl px-4 py-3 text-sm ${faltam > 0 ? "bg-amber-50 text-amber-900" : "bg-teal-50 text-teal-900"}`}>
-          <p>
-            Na 5x2 você precisa de pelo menos <strong>{necessario.escala5x2} pessoas</strong>
-            {necessario.escala6x1 !== necessario.escala5x2 && <> (na 6x1 seriam {necessario.escala6x1})</>}.
-          </p>
+    <div className="flex min-h-full flex-col">
+      <div className="p-5 pb-3">
+        <p className={`rounded-lg px-4 py-3 text-sm ${faltam > 0 ? "bg-marca/40" : "bg-tinta-clara"}`}>
+          Na 5x2, os mínimos que você definiu pedem <strong>{necessario.escala5x2} pessoas</strong>
+          {necessario.escala6x1 !== necessario.escala5x2 && <> (na 6x1 seriam {necessario.escala6x1})</>}.{" "}
           {faltam > 0 ? (
             <button
               type="button"
-              onClick={() => adicionar(faltam)}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+              onClick={() =>
+                adicionar(Array.from({ length: faltam }, (_, i) => `Pessoa ${funcionarios.length + i + 1}`))
+              }
+              className="font-bold text-tinta underline underline-offset-2"
             >
-              <Plus className="size-3.5" />
               Adicionar {faltam === 1 ? "1 pessoa" : `${faltam} pessoas`}
             </button>
           ) : (
-            <p className="mt-1 text-teal-700">Sua equipe é suficiente.</p>
+            <span>Sua equipe dá conta.</span>
           )}
-        </div>
+        </p>
+      </div>
 
-        <ul className="space-y-2">
-          {funcionarios.map((f, indice) => {
-            const expandido = aberto === f.id;
-            return (
-              <li key={f.id} className="rounded-xl border border-slate-200">
-                <div className="flex items-center gap-2 px-2 py-2">
-                  <Avatar nome={f.nome} indice={indice} />
-                  <input
-                    value={f.nome}
-                    onChange={(e) => atualizar(f.id, { nome: e.target.value })}
-                    aria-label={`Nome da pessoa ${indice + 1}`}
-                    maxLength={60}
-                    className="min-w-0 flex-1 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-slate-50 focus:bg-white focus:outline-2 focus:outline-teal-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setAberto(expandido ? null : f.id)}
-                    aria-expanded={expandido}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-slate-500 hover:bg-slate-100"
-                  >
-                    {f.folgasPreferidas.length > 0 || f.domingoQuinzenal ? "Preferências ✓" : "Preferências"}
-                    <ChevronDown className={`size-3.5 transition-transform ${expandido ? "rotate-180" : ""}`} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => aoMudar(funcionarios.filter((x) => x.id !== f.id))}
-                    aria-label={`Remover ${f.nome}`}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                </div>
-                {expandido && (
-                  <div className="space-y-3 border-t border-slate-100 px-3 py-3">
-                    <div>
-                      <p className="mb-1.5 text-xs font-medium text-slate-500">Prefere folgar em</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {ORDEM_DIAS.map((dia) => {
-                          const ativo = f.folgasPreferidas.includes(dia);
-                          return (
-                            <button
-                              key={dia}
-                              type="button"
-                              aria-pressed={ativo}
-                              onClick={() => alternarPreferencia(f, dia)}
-                              className={`rounded-lg px-2.5 py-1 text-xs font-medium ${
-                                ativo ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                              }`}
-                            >
-                              {SIGLAS_DIAS[dia]}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <span>
-                        Domingo quinzenal
-                        <span className="block text-xs text-slate-500">Folga no domingo a cada 2 semanas (CLT art. 386)</span>
-                      </span>
-                      <Interruptor
-                        ligado={f.domingoQuinzenal}
-                        aoMudar={(v) => atualizar(f.id, { domingoQuinzenal: v })}
-                        rotulo={`Domingo quinzenal para ${f.nome}`}
-                      />
+      <ul className="flex-1 space-y-1 px-3">
+        {funcionarios.map((f, indice) => {
+          const expandido = aberto === f.id;
+          const temPreferencia = f.folgasPreferidas.length > 0 || f.domingoQuinzenal;
+          return (
+            <li key={f.id} className={`rounded-lg ${expandido ? "bg-white ring-1 ring-grade" : ""}`}>
+              <div className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white">
+                <Avatar nome={f.nome} indice={indice} />
+                <input
+                  value={f.nome}
+                  onChange={(e) => atualizar(f.id, { nome: e.target.value })}
+                  aria-label={`Nome da pessoa ${indice + 1}`}
+                  maxLength={60}
+                  className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 font-bold focus:bg-white focus:outline-2 focus:outline-tinta"
+                />
+                <button
+                  type="button"
+                  onClick={() => setAberto(expandido ? null : f.id)}
+                  aria-expanded={expandido}
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-tinta-clara focus-visible:outline-2 focus-visible:outline-tinta ${
+                    temPreferencia ? "text-tinta" : "text-apagado"
+                  }`}
+                >
+                  Folgas
+                  {temPreferencia && <span className="size-1.5 rounded-full bg-tinta" aria-label="com preferência" />}
+                  <ChevronDown className={`size-4 transition-transform ${expandido ? "rotate-180" : ""}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => aoMudar(funcionarios.filter((x) => x.id !== f.id))}
+                  aria-label={`Remover ${f.nome}`}
+                  title={`Remover ${f.nome}`}
+                  className="rounded-md p-1.5 text-apagado hover:bg-caneta-clara hover:text-caneta focus-visible:outline-2 focus-visible:outline-tinta"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              {expandido && (
+                <div className="space-y-4 px-3 pt-1 pb-4">
+                  <div>
+                    <p className="mb-2 text-sm text-apagado">Dias em que prefere folgar</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {ORDEM_DIAS.map((dia) => {
+                        const ativo = f.folgasPreferidas.includes(dia);
+                        return (
+                          <button
+                            key={dia}
+                            type="button"
+                            aria-pressed={ativo}
+                            onClick={() => alternarPreferencia(f, dia)}
+                            className={`rounded-md px-2.5 py-1.5 text-sm font-bold focus-visible:outline-2 focus-visible:outline-tinta ${
+                              ativo ? "marca-texto text-tinta" : "bg-papel text-apagado hover:text-texto"
+                            }`}
+                          >
+                            {SIGLAS_DIAS[dia]}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span>
+                      Domingo de folga a cada 2 semanas
+                      <span className="block text-apagado">Revezamento quinzenal da CLT, art. 386</span>
+                    </span>
+                    <Interruptor
+                      ligado={f.domingoQuinzenal}
+                      aoMudar={(v) => atualizar(f.id, { domingoQuinzenal: v })}
+                      rotulo={`Domingo quinzenal para ${f.nome}`}
+                    />
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+        <li ref={fimDaLista} aria-hidden className="h-2" />
+      </ul>
 
+      <form
+        onSubmit={enviar}
+        className="sticky bottom-16 flex gap-2 border-t border-grade bg-papel p-3 lg:bottom-0"
+      >
+        <input
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          placeholder="Nome da pessoa"
+          aria-label="Nome da nova pessoa"
+          maxLength={60}
+          className="min-w-0 flex-1 rounded-lg border border-grade bg-white px-3 py-2 focus-visible:outline-2 focus-visible:outline-tinta"
+        />
         <button
-          type="button"
-          onClick={() => adicionar()}
-          className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium text-slate-600 hover:border-teal-600 hover:text-teal-700"
+          type="submit"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-tinta px-3.5 py-2 font-bold text-white hover:bg-tinta-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta"
         >
           <Plus className="size-4" />
-          Adicionar pessoa
+          Adicionar
         </button>
-      </div>
-    </Cartao>
+      </form>
+    </div>
   );
 }

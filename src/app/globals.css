@@ -1,7 +1,19 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+@theme {
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --color-tinta: #1e3a6e;
+  --color-tinta-escura: #142a52;
+  --color-tinta-clara: #e8eef8;
+  --color-papel: #f5f7fa;
+  --color-grade: #dce2ea;
+  --color-texto: #182033;
+  --color-apagado: #5b667a;
+  --color-marca: #ffe14d;
+  --color-marca-forte: #f5c800;
+  --color-caneta: #c8372d;
+  --color-caneta-clara: #fdeceb;
+  --color-ok: #1f7a4d;
 }
 
 :root {
@@ -9,7 +21,37 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-papel text-texto antialiased;
+}
+
+.marca-texto {
+  background-image: linear-gradient(
+    100deg,
+    transparent 2%,
+    var(--color-marca) 10%,
+    var(--color-marca) 88%,
+    transparent 98%
+  );
+  background-repeat: no-repeat;
+  background-position: center 55%;
+  background-size: 100% 74%;
+}
+
+.hachurado {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    var(--color-grade) 5px 6px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
 
 @media print {
@@ -20,5 +62,10 @@ body {
 
   body {
     background: white;
+  }
+
+  .marca-texto {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

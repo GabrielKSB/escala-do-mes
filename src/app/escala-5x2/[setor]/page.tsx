@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PaginaGerador } from "@/components/PaginaGerador";
 import { PADRAO, SETORES, setorPorSlug } from "@/lib/setores";
-import { SITE } from "@/lib/site";
 
 type Parametros = { params: Promise<{ setor: string }> };
 
@@ -36,8 +35,6 @@ export default async function PaginaSetor({ params }: Parametros) {
         regraDomingo: setor.regraDomingo,
       }}
       chave={`escala5x2:${setor.slug}`}
-      url={`${SITE.url}/escala-5x2/${setor.slug}/`}
-      setor={setor.nome}
     />
   );
 }
