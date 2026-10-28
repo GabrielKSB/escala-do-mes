@@ -1,6 +1,8 @@
+import { Github, Linkedin } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SETORES } from "@/lib/setores";
+import { SITE } from "@/lib/site";
 import { Logo } from "./Logo";
 
 type Pagina = "inicio" | "gerador" | "como-funciona";
@@ -79,6 +81,30 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+        <div className="border-t border-borda">
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 text-sm text-apagado sm:px-6">
+            <span>© {new Date().getFullYear()} Escala do Mês</span>
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              Feito por <span className="font-medium text-texto">{SITE.autor.nome}</span>
+              {[
+                { rotulo: "GitHub", url: SITE.autor.github, Icone: Github },
+                { rotulo: "LinkedIn", url: SITE.autor.linkedin, Icone: Linkedin },
+              ].map(({ rotulo, url, Icone }) => (
+                <a
+                  key={rotulo}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${rotulo} de ${SITE.autor.nome}`}
+                  title={rotulo}
+                  className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-superficie-2 hover:text-destaque focus-visible:outline-2 focus-visible:outline-destaque"
+                >
+                  <Icone className="size-4" />
+                </a>
+              ))}
+            </span>
           </div>
         </div>
       </footer>
