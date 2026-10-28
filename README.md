@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Escala 5x2
 
-## Getting Started
+Gerador gratuito de escala de trabalho 5x2: cada pessoa com 2 folgas por semana, rodízio de domingos e alertas quando a escala passa dos limites da lei, com o artigo citado.
 
-First, run the development server:
+Roda inteiro no navegador. Não há servidor nem banco de dados: a escala fica no `localStorage` e pode ser compartilhada por link.
+
+## O que confere
+
+| Regra | Fonte |
+| --- | --- |
+| Até 8 horas por dia e 40 por semana | Constituição, art. 7º, XIII (redação da EC 141/2026) |
+| No máximo 6 dias seguidos sem folga | CLT, art. 67; Constituição, art. 7º, § 2º |
+| Folga no domingo a cada 3 semanas no comércio | Lei 10.101/2000, art. 6º, parágrafo único |
+| Revezamento quinzenal de domingos | CLT, art. 386 |
+| Mínimo de pessoas por dia | configurado pelo usuário |
+
+A ferramenta é informativa e não substitui a convenção coletiva de cada categoria.
+
+## Desenvolvimento
+
+Requer Node 22.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run build` gera o site estático em `out/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variável | Uso |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | URL pública do site, usada no sitemap, robots e URLs canônicas |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | ID do cliente AdSense (`ca-pub-...`); sem ele, nenhum anúncio é carregado |
+| `NEXT_PUBLIC_ADSENSE_SLOT` | ID do bloco de anúncio |
 
-## Learn More
+## Estrutura
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/escala`: motor da escala (geração, validação, calculadora de equipe e link compartilhado), sem dependência de React
+- `src/components/gerador`: interface do gerador
+- `src/app/escala-5x2/[setor]`: páginas por setor geradas a partir de `src/lib/setores.ts`

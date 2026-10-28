@@ -7,6 +7,11 @@ export const NOMES_MESES = [
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ];
 
+export function rotuloMes(ano: number, mes: number): string {
+  const nome = NOMES_MESES[mes - 1];
+  return `${nome.charAt(0).toUpperCase()}${nome.slice(1)} de ${ano}`;
+}
+
 const UM_DIA = 86_400_000;
 
 function paraDia(ms: number, mes: number): Dia {
