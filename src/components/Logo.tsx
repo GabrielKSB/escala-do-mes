@@ -3,18 +3,20 @@ const LINHAS = [19, 26.5, 34];
 const FOLGAS = new Set(["3-0", "0-2"]);
 
 export function Simbolo({
-  className = "",
+  className,
+  tamanho,
   corpo = "#e6ecea",
   fundo = "#090c0b",
   folga = "#5ee6c8",
 }: {
   className?: string;
+  tamanho?: number;
   corpo?: string;
   fundo?: string;
   folga?: string;
 }) {
   return (
-    <svg viewBox="0 0 48 48" aria-hidden className={className}>
+    <svg viewBox="0 0 48 48" aria-hidden className={className} width={tamanho} height={tamanho}>
       <path d="M9 8h30a5 5 0 0 1 5 5v19L32 44H9a5 5 0 0 1-5-5V13a5 5 0 0 1 5-5Z" fill={corpo} />
       <path d="M44 32h-8a4 4 0 0 0-4 4v8Z" fill={fundo} opacity="0.35" />
       <rect x="8" y="14" width="32" height="2" rx="1" fill={fundo} />
