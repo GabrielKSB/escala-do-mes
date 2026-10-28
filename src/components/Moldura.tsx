@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SETORES } from "@/lib/setores";
+import { Logo } from "./Logo";
 
 type Pagina = "inicio" | "gerador" | "como-funciona";
 
@@ -14,9 +15,8 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
         className={`print:hidden ${pagina === "inicio" ? "absolute inset-x-0 top-0 z-30" : "border-b border-borda bg-superficie"}`}
       >
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
-            <span aria-hidden className="folga inline-block size-3 rounded-sm" />
-            Escala do Mês
+          <Link href="/" aria-label="Escala do Mês, página inicial">
+            <Logo fundo={pagina === "inicio" ? undefined : "#101513"} />
           </Link>
           <nav aria-label="Principal" className="flex items-center gap-1">
             <Link
@@ -45,7 +45,9 @@ export function Moldura({ children, pagina }: { children: ReactNode; pagina: Pag
       <footer className="mt-12 border-t border-borda bg-superficie pb-16 lg:pb-0 print:hidden">
         <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 text-sm text-apagado sm:px-6 md:grid-cols-[2fr_1fr]">
           <div>
-            <p className="font-semibold text-texto">Escala do Mês</p>
+            <div className="text-texto">
+              <Logo fundo="#101513" />
+            </div>
             <p className="mt-2 max-w-prose">
               Ferramenta gratuita e informativa. Não substitui orientação jurídica nem a convenção coletiva da sua
               categoria. A escala fica salva só no seu navegador.
