@@ -61,10 +61,18 @@ export default function Privacidade() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold">Dados técnicos de acesso</h2>
+            <h2 className="text-xl font-semibold">Dados técnicos e estatísticas de visita</h2>
             <p className="mt-3">
               Como em qualquer site, o serviço de hospedagem pode registrar dados técnicos das visitas, como endereço IP,
               navegador e páginas acessadas, para manter o site funcionando e seguro.
+            </p>
+            <p className="mt-3">
+              Para saber quais páginas são mais usadas, o site usa o{" "}
+              <a href="https://vercel.com/docs/analytics/privacy-policy" className={LINK} target="_blank" rel="noopener noreferrer">
+                Vercel Web Analytics
+              </a>
+              . Ele não usa cookies e não identifica você: conta as visitas de forma agregada, como página, país e tipo de
+              aparelho.
             </p>
           </section>
 

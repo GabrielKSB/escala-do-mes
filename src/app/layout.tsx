@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import { Consentimento } from "@/components/Consentimento";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         {children}
         {SITE.adsenseCliente && <Consentimento />}
+        {process.env.VERCEL === "1" && <Script src="/_vercel/insights/script.js" strategy="afterInteractive" />}
       </body>
     </html>
   );
