@@ -1,7 +1,8 @@
 # Escala do Mês
 
 Gerador gratuito de escala de trabalho (5x2, 6x1, 4x2 e 12x36), com rodízio de domingos e alertas quando a escala passa dos limites da lei, com o artigo citado.
-nNo ar em [escaladomes.com.br](https://escaladomes.com.br).
+
+No ar em [escaladomes.com.br](https://escaladomes.com.br).
 
 Roda inteiro no navegador. Não há servidor nem banco de dados: a escala fica no `localStorage` e pode ser compartilhada por link.
 
