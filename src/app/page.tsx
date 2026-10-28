@@ -1,7 +1,6 @@
 import { CalendarCheck2, Calculator, MousePointerClick, Repeat, Scale, Send, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AdSlot } from "@/components/AdSlot";
 import { Moldura } from "@/components/Moldura";
 import { PreviaEscala } from "@/components/PreviaEscala";
 import { SETORES } from "@/lib/setores";
@@ -168,10 +167,6 @@ export default function Inicio() {
             </ol>
           </div>
         </section>
-
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <AdSlot />
-        </div>
 
         <section className="px-4 py-24 sm:px-6">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1fr_1.4fr]">
