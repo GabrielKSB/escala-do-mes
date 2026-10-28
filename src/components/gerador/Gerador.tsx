@@ -17,6 +17,7 @@ import { gerarEscala } from "@/lib/escala/gerador";
 import type { Configuracao } from "@/lib/escala/tipos";
 import { validar } from "@/lib/escala/validacao";
 import { BarraExportar } from "./BarraExportar";
+import { FolhaEscala } from "./FolhaEscala";
 import { GradeEscala, chaveCelula } from "./GradeEscala";
 import { ListaAlertas } from "./PainelAlertas";
 import { PassoEquipe, novoFuncionario } from "./PassoEquipe";
@@ -121,7 +122,7 @@ function Editor({
   const [vista, setVista] = useState<Vista>("escala");
   const [alertasAbertos, setAlertasAbertos] = useState(false);
   const [alertaSelecionado, setAlertaSelecionado] = useState<string | null>(null);
-  const tabela = useRef<HTMLTableElement>(null);
+  const folha = useRef<HTMLDivElement>(null);
   const hoje = useMemo(hojeIso, []);
 
   const dias = useMemo(() => intervaloDoMes(config.ano, config.mes), [config.ano, config.mes]);
@@ -195,7 +196,7 @@ function Editor({
 
   return (
     <>
-      <div className="overflow-clip rounded-2xl border border-borda bg-superficie shadow-sm lg:grid lg:h-[calc(100dvh-10rem)] lg:min-h-[560px] lg:grid-cols-[360px_minmax(0,1fr)] print:block print:h-auto print:border-0 print:shadow-none">
+      <div className="overflow-clip rounded-2xl border border-borda bg-superficie shadow-sm lg:grid lg:h-[calc(100dvh-10rem)] lg:min-h-[560px] lg:grid-cols-[360px_minmax(0,1fr)] print:hidden">
         <aside
           className={`${vista === "escala" ? "hidden" : "flex"} flex-col bg-fundo lg:flex lg:min-h-0 lg:border-r lg:border-borda print:hidden`}
         >
@@ -286,7 +287,7 @@ function Editor({
 
             <div className="ml-auto">
               <BarraExportar
-                alvo={tabela}
+                alvo={folha}
                 nomeArquivo={`escala-${NOMES_MESES[config.mes - 1]}-${config.ano}.png`}
                 textoWhatsApp={() => textoWhatsApp(config, funcionarios, dias, escala)}
                 linkCompartilhar={() => `${window.location.origin}${window.location.pathname}#e=${codificar(estado)}`}
@@ -308,7 +309,6 @@ function Editor({
 
           <div className="overflow-auto lg:min-h-0 lg:flex-1 print:overflow-visible">
             <GradeEscala
-              ref={tabela}
               titulo={`Escala de ${NOMES_MESES[config.mes - 1]} de ${config.ano}`}
               config={config}
               funcionarios={funcionarios}
@@ -338,6 +338,10 @@ function Editor({
             <span className="print:hidden">Clique num dia para trocar entre trabalho e folga.</span>
           </div>
         </section>
+      </div>
+
+      <div aria-hidden className="pointer-events-none fixed top-0 -left-[20000px] print:static">
+        <FolhaEscala ref={folha} config={config} funcionarios={funcionarios} dias={dias} escala={escala} />
       </div>
 
       <nav
