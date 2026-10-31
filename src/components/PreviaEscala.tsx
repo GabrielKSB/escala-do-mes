@@ -21,6 +21,8 @@ const EQUIPE: Funcionario[] = ["Ana", "Bruno", "Carla", "Diego", "Elisa", "Fábi
 }));
 
 const DIAS_VISIVEIS = 14;
+const DIAS_NO_CELULAR = 7;
+const soNaTelaMaior = (posicao: number) => (posicao >= DIAS_NO_CELULAR ? "hidden sm:table-cell" : "");
 
 export function PreviaEscala() {
   const dias = intervaloDoMes(CONFIG.ano, CONFIG.mes);
@@ -49,9 +51,9 @@ export function PreviaEscala() {
         <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
-              <th className="w-24 px-3 py-2 text-left text-xs font-normal text-apagado">Equipe</th>
-              {visiveis.map(({ dia }) => (
-                <th key={dia.iso} className="px-px py-2 text-center font-normal">
+              <th className="w-20 px-2 py-2 text-left text-xs font-normal text-apagado sm:w-24 sm:px-3">Equipe</th>
+              {visiveis.map(({ dia }, posicao) => (
+                <th key={dia.iso} className={`px-px py-2 text-center font-normal ${soNaTelaMaior(posicao)}`}>
                   <span className="block text-xs text-apagado">{SIGLAS_DIAS[dia.semana]}</span>
                   <span className="block font-medium tabular-nums">{dia.dia}</span>
                 </th>
@@ -61,9 +63,9 @@ export function PreviaEscala() {
           <tbody>
             {EQUIPE.map((f) => (
               <tr key={f.id}>
-                <th className="border-t border-borda px-3 py-1.5 text-left font-medium">{f.nome}</th>
-                {visiveis.map(({ dia, i }) => (
-                  <td key={dia.iso} className="border-t border-borda p-0.5 text-center">
+                <th className="border-t border-borda px-2 py-1.5 text-left font-medium sm:px-3">{f.nome}</th>
+                {visiveis.map(({ dia, i }, posicao) => (
+                  <td key={dia.iso} className={`border-t border-borda p-0.5 text-center ${soNaTelaMaior(posicao)}`}>
                     <span
                       className={`flex h-7 items-center justify-center rounded-md text-xs font-semibold ${
                         escala[f.id][i] ? "folga" : ""
